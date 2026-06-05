@@ -177,12 +177,15 @@ a:hover { text-decoration: none; }
 }
 
 .umsa-sidebar-nav .nav-link i,
-.umsa-sidebar-nav a.nav-link i {
+.umsa-sidebar-nav a.nav-link i,
+.umsa-sidebar-footer .nav-link i,
+.umsa-sidebar-footer a.nav-link i {
   width: 17px;
   text-align: center;
   font-size: 13px;
   opacity: 0.7;
   flex-shrink: 0;
+  color: inherit !important;
 }
 
 .umsa-sidebar-nav .nav-item.active > .nav-link i,
@@ -970,6 +973,192 @@ label {
   color: var(--umsa-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+/* ================================================================
+   DARK MODE VARIABLES
+   ================================================================ */
+[data-theme="dark"] {
+  --umsa-bg:             #111827;
+  --umsa-surface:        #1F2937;
+  --umsa-border:         #374151;
+  --umsa-border-strong:  #4B5563;
+
+  --umsa-text:           #F9FAFB;
+  --umsa-text-secondary: #D1D5DB;
+  --umsa-text-muted:     #9CA3AF;
+
+  --umsa-primary-light:  rgba(0, 107, 63, 0.18);
+  --umsa-accent-light:   rgba(198, 40, 40, 0.18);
+
+  --umsa-success-bg:     rgba(27, 135, 58, 0.15);
+  --umsa-warning-bg:     rgba(224, 123, 0, 0.15);
+  --umsa-danger-bg:      rgba(198, 40, 40, 0.15);
+  --umsa-info-bg:        rgba(2, 119, 189, 0.15);
+}
+
+/* Dark mode — overrides de componentes que Argon fija con colores */
+[data-theme="dark"] body {
+  background: var(--umsa-bg);
+  color: var(--umsa-text);
+}
+
+[data-theme="dark"] .umsa-sidebar {
+  background: var(--umsa-surface);
+  border-color: var(--umsa-border);
+}
+
+[data-theme="dark"] .umsa-topbar {
+  background: var(--umsa-surface);
+  border-color: var(--umsa-border);
+}
+
+[data-theme="dark"] .umsa-footer {
+  border-color: var(--umsa-border);
+}
+
+[data-theme="dark"] .umsa-sidebar-brand {
+  border-color: var(--umsa-border);
+}
+
+[data-theme="dark"] .umsa-sidebar-footer {
+  border-color: var(--umsa-border);
+}
+
+[data-theme="dark"] .umsa-user-chip {
+  border-color: var(--umsa-border);
+  color: var(--umsa-text);
+}
+
+[data-theme="dark"] .umsa-user-chip:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+[data-theme="dark"] .umsa-icon-btn:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+/* Cards en dark */
+[data-theme="dark"] .card {
+  background: var(--umsa-surface) !important;
+  border-color: var(--umsa-border) !important;
+  color: var(--umsa-text) !important;
+}
+
+[data-theme="dark"] .card-header {
+  background: transparent !important;
+  border-color: var(--umsa-border) !important;
+  color: var(--umsa-text) !important;
+}
+
+[data-theme="dark"] .card-body {
+  color: var(--umsa-text);
+}
+
+/* Tablas en dark */
+[data-theme="dark"] .table {
+  color: var(--umsa-text);
+}
+
+[data-theme="dark"] .table tbody td {
+  border-color: var(--umsa-border) !important;
+  color: var(--umsa-text);
+}
+
+[data-theme="dark"] .table tbody tr:hover td {
+  background: rgba(0, 107, 63, 0.08) !important;
+}
+
+[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(even) > td {
+  background: rgba(255,255,255,0.03);
+}
+
+/* Formularios en dark */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+  background: #374151 !important;
+  border-color: var(--umsa-border) !important;
+  color: var(--umsa-text) !important;
+}
+
+[data-theme="dark"] .form-control::placeholder {
+  color: var(--umsa-text-muted) !important;
+}
+
+[data-theme="dark"] .input-group-text {
+  background: #374151 !important;
+  border-color: var(--umsa-border) !important;
+  color: var(--umsa-text-muted) !important;
+}
+
+/* Dropdowns en dark */
+[data-theme="dark"] .dropdown-menu {
+  background: var(--umsa-surface) !important;
+  border-color: var(--umsa-border) !important;
+}
+
+[data-theme="dark"] .dropdown-item {
+  color: var(--umsa-text) !important;
+}
+
+[data-theme="dark"] .dropdown-item:hover {
+  background: rgba(255,255,255,0.06) !important;
+}
+
+[data-theme="dark"] .dropdown-divider {
+  border-color: var(--umsa-border) !important;
+}
+
+/* Modales en dark */
+[data-theme="dark"] .modal-content {
+  background: var(--umsa-surface) !important;
+  border-color: var(--umsa-border) !important;
+  color: var(--umsa-text);
+}
+
+[data-theme="dark"] .modal-header {
+  background: var(--umsa-surface) !important;
+  border-color: var(--umsa-border) !important;
+}
+
+/* Textos generales */
+[data-theme="dark"] h1,[data-theme="dark"] h2,[data-theme="dark"] h3,
+[data-theme="dark"] h4,[data-theme="dark"] h5,[data-theme="dark"] h6,
+[data-theme="dark"] p,[data-theme="dark"] label,
+[data-theme="dark"] .text-muted {
+  color: var(--umsa-text-secondary) !important;
+}
+
+[data-theme="dark"] .text-dark {
+  color: var(--umsa-text) !important;
+}
+
+/* Login en dark */
+[data-theme="dark"] .umsa-login-card {
+  background: rgba(31, 41, 55, 0.92);
+  border-color: rgba(255,255,255,0.08);
+  color: var(--umsa-text);
+}
+
+[data-theme="dark"] .umsa-login-title {
+  color: var(--umsa-text);
+}
+
+[data-theme="dark"] .umsa-login-page {
+  background: #0F1923;
+  background-image:
+    radial-gradient(ellipse 70% 60% at 15% 50%, rgba(0, 107, 63, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 60% at 85% 50%, rgba(198, 40, 40, 0.08) 0%, transparent 70%);
+}
+
+/* Transicion suave al cambiar tema */
+*, *::before, *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+/* Evitar transicion en scroll */
+html {
+  scroll-behavior: smooth;
 }
 
 /* ================================================================

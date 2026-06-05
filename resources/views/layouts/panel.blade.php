@@ -6,6 +6,16 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{{ config('app.name') }} | Panel de Control</title>
 
+  {{-- FOUC prevention: aplica el tema guardado antes de que cargue el CSS --}}
+  <script>
+    (function() {
+      var t = localStorage.getItem('umsa-theme');
+      if (t === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    }());
+  </script>
+
   <link href="{{ asset('img/brand/logos.jpg') }}" rel="icon" type="image/png">
 
   {{-- Nucleo + FontAwesome --}}
@@ -107,6 +117,11 @@
       </div>
 
       <div class="umsa-topbar-actions">
+        {{-- Toggle de tema --}}
+        <button class="umsa-icon-btn" id="themeToggleBtn" title="Cambiar tema" aria-label="Cambiar tema">
+          <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+
         {{-- Notificaciones --}}
         @php $noLeidas = auth()->user()?->alertasNoLeidas()->count() ?? 0; @endphp
         <a href="{{ route('alertas.index') }}" class="umsa-icon-btn" title="Alertas">
@@ -205,6 +220,40 @@
       });
     }
   });
+</script>
+
+{{-- Tema claro / oscuro --}}
+<script>
+  (function () {
+    var btn  = document.getElementById('themeToggleBtn');
+    var icon = document.getElementById('themeIcon');
+    var html = document.documentElement;
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        html.setAttribute('data-theme', 'dark');
+        icon.classList.replace('fa-moon', 'fa-sun');
+        btn.title = 'Cambiar a modo claro';
+      } else {
+        html.removeAttribute('data-theme');
+        icon.classList.replace('fa-sun', 'fa-moon');
+        btn.title = 'Cambiar a modo oscuro';
+      }
+    }
+
+    // Inicializar icono segun tema actual (ya aplicado por el script inline del head)
+    var saved = localStorage.getItem('umsa-theme');
+    applyTheme(saved === 'dark' ? 'dark' : 'light');
+
+    if (btn) {
+      btn.addEventListener('click', function () {
+        var current = html.getAttribute('data-theme');
+        var next = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('umsa-theme', next);
+        applyTheme(next);
+      });
+    }
+  }());
 </script>
 
 @yield('scripts')
