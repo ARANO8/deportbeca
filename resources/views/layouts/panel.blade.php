@@ -65,6 +65,16 @@
 
     {{-- Footer del sidebar --}}
     <div class="umsa-sidebar-footer">
+
+      {{-- Toggle de tema --}}
+      <div class="umsa-theme-row" id="sidebarThemeRow" role="button" aria-label="Cambiar tema">
+        <i class="fas fa-moon" id="sidebarThemeIcon"></i>
+        <span>Modo oscuro</span>
+        <div class="umsa-switch">
+          <div class="umsa-switch-knob"></div>
+        </div>
+      </div>
+
       <ul class="umsa-sidebar-nav">
         <li class="nav-item">
           <a href="{{ route('alertas.index') }}" class="nav-link">
@@ -225,34 +235,51 @@
 {{-- Tema claro / oscuro --}}
 <script>
   (function () {
-    var btn  = document.getElementById('themeToggleBtn');
-    var icon = document.getElementById('themeIcon');
-    var html = document.documentElement;
+    var btn    = document.getElementById('themeToggleBtn');
+    var icon   = document.getElementById('themeIcon');
+    var sbRow  = document.getElementById('sidebarThemeRow');
+    var sbIcon = document.getElementById('sidebarThemeIcon');
+    var html   = document.documentElement;
 
     function applyTheme(theme) {
-      if (theme === 'dark') {
+      var isDark = theme === 'dark';
+
+      // HTML attribute
+      if (isDark) {
         html.setAttribute('data-theme', 'dark');
-        icon.classList.replace('fa-moon', 'fa-sun');
-        btn.title = 'Cambiar a modo claro';
       } else {
         html.removeAttribute('data-theme');
-        icon.classList.replace('fa-sun', 'fa-moon');
-        btn.title = 'Cambiar a modo oscuro';
       }
+
+      // Topbar button
+      if (icon) {
+        icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+      }
+      if (btn) {
+        btn.title = isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+      }
+
+      // Sidebar toggle — label fijo "Modo oscuro", solo cambia el icono
+      if (sbIcon) sbIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+
+      // Notificar a otros componentes (ej. Chart.js)
+      document.dispatchEvent(new CustomEvent('umsa-theme-change', {
+        detail: { theme: theme }
+      }));
     }
 
-    // Inicializar icono segun tema actual (ya aplicado por el script inline del head)
+    function toggle() {
+      var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('umsa-theme', next);
+      applyTheme(next);
+    }
+
+    // Inicializar segun valor guardado
     var saved = localStorage.getItem('umsa-theme');
     applyTheme(saved === 'dark' ? 'dark' : 'light');
 
-    if (btn) {
-      btn.addEventListener('click', function () {
-        var current = html.getAttribute('data-theme');
-        var next = current === 'dark' ? 'light' : 'dark';
-        localStorage.setItem('umsa-theme', next);
-        applyTheme(next);
-      });
-    }
+    if (btn)   btn.addEventListener('click', toggle);
+    if (sbRow) sbRow.addEventListener('click', toggle);
   }());
 </script>
 

@@ -1170,6 +1170,200 @@ html {
 ::-webkit-scrollbar-thumb:hover { background: var(--umsa-text-muted); }
 
 /* ================================================================
+   TOGGLE DE TEMA — FILA EN SIDEBAR
+   ================================================================ */
+.umsa-theme-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  margin: 0 8px 2px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--umsa-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+.umsa-theme-row:hover {
+  background: var(--umsa-primary-light);
+}
+
+.umsa-theme-row i {
+  width: 17px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--umsa-text-muted);
+  flex-shrink: 0;
+}
+
+.umsa-switch {
+  margin-left: auto;
+  width: 34px;
+  height: 18px;
+  background: var(--umsa-border);
+  border-radius: 9px;
+  position: relative;
+  transition: background 0.22s;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .umsa-switch {
+  background: var(--umsa-primary);
+}
+
+.umsa-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.22s;
+}
+
+[data-theme="dark"] .umsa-switch-knob {
+  transform: translateX(16px);
+}
+
+/* ================================================================
+   TOGGLE FLOTANTE — PAGINAS SIN SIDEBAR (login / register)
+   ================================================================ */
+.umsa-float-theme-btn {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--umsa-surface);
+  border: 1px solid var(--umsa-border);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--umsa-text-secondary);
+  font-size: 14px;
+  transition: background 0.15s, box-shadow 0.15s, color 0.15s;
+  z-index: 9999;
+}
+
+.umsa-float-theme-btn:hover {
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+  color: var(--umsa-primary);
+  background: var(--umsa-primary-light);
+}
+
+/* ================================================================
+   DASHBOARD — OVERRIDES DARK MODE
+   (los estilos inline de home.blade.php usan clases propias)
+   ================================================================ */
+
+/* Panel cards */
+[data-theme="dark"] .panel-card {
+  background: var(--umsa-surface) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35) !important;
+}
+
+[data-theme="dark"] .panel-card .card-header {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: var(--umsa-border) !important;
+  color: var(--umsa-text) !important;
+}
+
+[data-theme="dark"] .panel-card .card-body {
+  color: var(--umsa-text);
+}
+
+/* KPI cards */
+[data-theme="dark"] .kpi-card {
+  background: var(--umsa-surface) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45) !important;
+}
+
+[data-theme="dark"] .kpi-label,
+[data-theme="dark"] .kpi-sub {
+  color: var(--umsa-text-muted) !important;
+}
+
+/* Listas / filas del dashboard */
+[data-theme="dark"] .alert-serie {
+  background: rgba(251, 99, 64, 0.09) !important;
+  border-color: rgba(251, 99, 64, 0.22) !important;
+}
+
+[data-theme="dark"] .alert-serie .serie-info {
+  color: var(--umsa-text) !important;
+}
+
+[data-theme="dark"] .alert-serie .serie-info small {
+  color: var(--umsa-text-muted) !important;
+}
+
+[data-theme="dark"] .preinsc-row {
+  border-color: var(--umsa-border) !important;
+}
+
+[data-theme="dark"] .preinsc-name {
+  color: var(--umsa-text) !important;
+}
+
+[data-theme="dark"] .preinsc-meta {
+  color: var(--umsa-text-muted) !important;
+}
+
+[data-theme="dark"] .partido-item {
+  border-color: var(--umsa-border) !important;
+}
+
+[data-theme="dark"] .partido-equipos {
+  color: var(--umsa-text) !important;
+}
+
+[data-theme="dark"] .partido-meta {
+  color: var(--umsa-text-muted) !important;
+}
+
+[data-theme="dark"] .mini-progress {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .empty-state {
+  color: var(--umsa-text-muted) !important;
+}
+
+[data-theme="dark"] .badge-grupal {
+  background: rgba(46, 125, 50, 0.22) !important;
+  color: #81c784 !important;
+}
+
+[data-theme="dark"] .badge-individual {
+  background: rgba(21, 101, 192, 0.22) !important;
+  color: #90caf9 !important;
+}
+
+[data-theme="dark"] .btn-outline-primary {
+  color: #7c9eef !important;
+  border-color: #7c9eef !important;
+}
+
+[data-theme="dark"] .btn-outline-warning {
+  color: #ffc06e !important;
+  border-color: #ffc06e !important;
+}
+
+[data-theme="dark"] .btn-light {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: var(--umsa-border) !important;
+  color: var(--umsa-text-secondary) !important;
+}
+
+/* ================================================================
    RESPONSIVE
    ================================================================ */
 @media (max-width: 768px) {
