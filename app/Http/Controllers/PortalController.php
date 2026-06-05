@@ -4,20 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\EventoConfiguracion;
 use App\Models\Serie;
+use Illuminate\Http\Request;
 
 class PortalController extends Controller
 {
     /**
      * Lista de eventos activos con conteo de series disponibles.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $busqueda = $request->get('q');
+
         $eventos = EventoConfiguracion::where('activo', true)
             ->withCount('series')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('portal.index', compact('eventos'));
+        return view('portal.index', compact('eventos', 'busqueda'));
     }
 
     /**
@@ -44,21 +47,29 @@ class PortalController extends Controller
     /**
      * Tabla de posiciones publica de una serie.
      */
-    public function serie(int $serieId)
+    public function serie(int $serieId, Request $request)
     {
         $serie = Serie::with(['disciplina', 'eventoConfiguracion'])->findOrFail($serieId);
+        $busqueda = $request->get('q');
 
         $hayPosiciones = $serie->estadisticas()->whereNotNull('posicion_final')->exists();
 
+        $query = $serie->estadisticas()->with('equipo');
+
+        if ($busqueda) {
+            $query->whereHas('equipo', function ($q) use ($busqueda) {
+                $q->where('nombre_equipo', 'like', '%'.$busqueda.'%')
+                    ->orWhere('representante_nombre', 'like', '%'.$busqueda.'%');
+            });
+        }
+
         if ($hayPosiciones) {
-            $tablaPosiciones = $serie->estadisticas()
-                ->with('equipo')
+            $tablaPosiciones = $query
                 ->orderByRaw('CASE WHEN posicion_final IS NULL THEN 9999 ELSE posicion_final END ASC')
                 ->get();
             $esIndividual = true;
         } else {
-            $tablaPosiciones = $serie->estadisticas()
-                ->with('equipo')
+            $tablaPosiciones = $query
                 ->orderBy('pts', 'desc')
                 ->orderBy('dg', 'desc')
                 ->orderBy('gf', 'desc')
@@ -66,7 +77,7 @@ class PortalController extends Controller
             $esIndividual = false;
         }
 
-        return view('portal.serie', compact('serie', 'tablaPosiciones', 'esIndividual'));
+        return view('portal.serie', compact('serie', 'tablaPosiciones', 'esIndividual', 'busqueda'));
     }
 
     /**

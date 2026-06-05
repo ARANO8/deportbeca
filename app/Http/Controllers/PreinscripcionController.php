@@ -78,6 +78,24 @@ class PreinscripcionController extends Controller
             'documento_matricula_capitan' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
+        // Verificar limite de inscripciones
+        $eventoTemp = EventoConfiguracion::find(session('evento_activo_id'));
+        if ($eventoTemp && $eventoTemp->max_inscripciones !== null) {
+            $totalActual = Preinscripcion::where('tipo_evento', $eventoTemp->tipo_evento)
+                ->whereIn('estado', [
+                    Preinscripcion::ESTADO_PENDIENTE,
+                    Preinscripcion::ESTADO_HABILITADO,
+                ])
+                ->count();
+
+            if ($totalActual >= $eventoTemp->max_inscripciones) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El evento ha alcanzado el limite maximo de inscripciones ('.$eventoTemp->max_inscripciones.').',
+                ], 422);
+            }
+        }
+
         DB::beginTransaction();
 
         try {

@@ -237,4 +237,54 @@ class FixtureController extends Controller
 
         return view('fixture.imprimir', compact('evento', 'series'));
     }
+
+    public function calendarioEventosJson($eventoId)
+    {
+        $series = Serie::with([
+            'partidos' => function ($q) {
+                $q->with(['equipoLocal', 'equipoVisitante', 'lugar'])
+                    ->whereNotNull('fecha');
+            },
+            'disciplina',
+        ])
+            ->where('evento_configuracion_id', $eventoId)
+            ->get();
+
+        $eventos = [];
+        foreach ($series as $serie) {
+            foreach ($serie->partidos as $partido) {
+                if (! $partido->fecha) {
+                    continue;
+                }
+
+                $local = $partido->equipoLocal->nombre_participante ?? 'Local';
+                $visitante = $partido->equipoVisitante->nombre_participante ?? 'Visitante';
+                $hora = $partido->hora_inicio ? substr($partido->hora_inicio, 0, 5) : '00:00';
+                $fechaHora = $partido->fecha->format('Y-m-d').'T'.$hora.':00';
+                $lugar = $partido->lugar->nombre ?? '';
+
+                $color = match (true) {
+                    $partido->goles_local !== null && $partido->goles_visitante !== null => '#10b981',
+                    default => '#dc2626',
+                };
+
+                $eventos[] = [
+                    'id' => $partido->id,
+                    'title' => $local.' vs '.$visitante,
+                    'start' => $fechaHora,
+                    'color' => $color,
+                    'extendedProps' => [
+                        'serie' => $serie->nombre_serie,
+                        'lugar' => $lugar,
+                        'local' => $local,
+                        'visit' => $visitante,
+                        'gl' => $partido->goles_local,
+                        'gv' => $partido->goles_visitante,
+                    ],
+                ];
+            }
+        }
+
+        return response()->json($eventos);
+    }
 }

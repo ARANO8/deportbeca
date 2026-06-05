@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\PaginaController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AlertaController;
 use App\Http\Controllers\ArchivadorController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
@@ -105,9 +106,15 @@ Route::middleware(['auth', 'permiso:disciplinas,ver'])->group(function () {
     Route::get('/NewPassword', [UserSenttingsController::class, 'NewPassword'])->name('NewPassword');
     Route::post('/change/password', [UserSenttingsController::class, 'changePassword'])->name('changePassword');
 
-    // TODO: crear AlertaController antes de descomentar estas rutas
-    // Route::post('/alertas/{id}/marcar-leida', [App\Http\Controllers\AlertaController::class, 'marcarLeida'])->name('alertas.marcar-leida');
-    // Route::get('/alertas', [App\Http\Controllers\AlertaController::class, 'index'])->name('alertas.index');
+    Route::get('/perfil', [UserSenttingsController::class, 'editarPerfil'])->name('perfil.editar');
+    Route::put('/perfil', [UserSenttingsController::class, 'actualizarPerfil'])->name('perfil.actualizar');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/alertas', [AlertaController::class, 'index'])->name('alertas.index');
+    Route::post('/alertas/{alerta}/marcar-leida', [AlertaController::class, 'marcarLeida'])->name('alertas.marcar.leida');
+    Route::post('/alertas/marcar-todas', [AlertaController::class, 'marcarTodasLeidas'])->name('alertas.marcar.todas');
+    Route::delete('/alertas/{alerta}', [AlertaController::class, 'destroy'])->name('alertas.destroy');
 });
 
 // ==================== CONFIGURACIÓN DE EVENTOS (ADMIN) ====================
@@ -126,6 +133,8 @@ Route::prefix('archivador')->middleware(['auth', 'permiso:preinscripciones,ver']
     Route::match(['GET', 'POST'], '{id}/revertir', [ArchivadorController::class, 'revertirPendiente'])->name('archivador.revertir');
     Route::get('{id}/integrante/{integranteId}/{tipo}', [ArchivadorController::class, 'descargarDocumentoIntegrante'])->name('archivador.descargar.integrante');
     Route::get('{id}/descargar/{tipo}', [ArchivadorController::class, 'descargarDocumento'])->name('archivador.descargar');
+    Route::get('{id}/credencial/pdf', [ArchivadorController::class, 'generarCredencial'])->name('archivador.credencial');
+    Route::get('{id}/historial', [ArchivadorController::class, 'historial'])->name('archivador.historial');
 });
 
 // ==================== ADMIN (USUARIOS, CARRERAS, PAGINAS, LUGARES) ====================
@@ -204,6 +213,8 @@ Route::middleware(['auth', 'permiso:fixture,ver'])->prefix('fixture')->name('fix
 
     // Siguiente fase eliminatoria
     Route::post('/evento/{evento}/disciplina/{disciplina}/siguiente-fase', [FixtureController::class, 'generarSiguienteFase'])->name('siguiente.fase');
+
+    Route::get('/evento/{evento}/calendario/json', [FixtureController::class, 'calendarioEventosJson'])->name('calendario.json');
 });
 
 // ==================== EXPORTACIONES (Excel y PDF) ====================
