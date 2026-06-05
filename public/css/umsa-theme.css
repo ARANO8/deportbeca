@@ -9,42 +9,49 @@
 /* ================================================================
    TOKENS
    ================================================================ */
+/*
+ * Paleta extraida del logo oficial UMSA:
+ *   Azul institucional  (#1A5276) — letras "ums"
+ *   Rojo institucional  (#C0392B) — letra "A"
+ */
 :root {
-  --umsa-primary:          #006B3F;
-  --umsa-primary-dark:     #004D2C;
-  --umsa-primary-light:    #E8F5EE;
+  /* Azul UMSA — color dominante */
+  --umsa-primary:          #1A5276;
+  --umsa-primary-dark:     #0D3451;
+  --umsa-primary-light:    #D4E8F5;
 
-  --umsa-accent:           #C62828;
-  --umsa-accent-dark:      #B71C1C;
-  --umsa-accent-light:     #FDECEA;
+  /* Rojo UMSA — acento y CTAs */
+  --umsa-accent:           #C0392B;
+  --umsa-accent-dark:      #921E13;
+  --umsa-accent-light:     #FAE5E3;
 
-  --umsa-gold:             #F9A825;
-  --umsa-gold-dark:        #F57F17;
-
-  --umsa-bg:               #F4F7F5;
+  /* Fondos */
+  --umsa-bg:               #F0F4F8;
   --umsa-surface:          #FFFFFF;
-  --umsa-border:           #E2E8E5;
-  --umsa-border-strong:    #C8D8D0;
+  --umsa-border:           #D0DCE8;
+  --umsa-border-strong:    #9DB5C8;
 
-  --umsa-text:             #0D1F17;
-  --umsa-text-secondary:   #4A6358;
-  --umsa-text-muted:       #8FA89C;
+  /* Textos */
+  --umsa-text:             #0D1B26;
+  --umsa-text-secondary:   #2E4C6A;
+  --umsa-text-muted:       #6B8EAA;
 
+  /* Semanticos */
   --umsa-success:          #1B873A;
-  --umsa-success-bg:       #E8F5EE;
-  --umsa-warning:          #E07B00;
-  --umsa-warning-bg:       #FFF3E0;
-  --umsa-danger:           #C62828;
-  --umsa-danger-bg:        #FDECEA;
-  --umsa-info:             #0277BD;
-  --umsa-info-bg:          #E3F2FD;
+  --umsa-success-bg:       #E4F5EC;
+  --umsa-warning:          #D4820A;
+  --umsa-warning-bg:       #FEF3DC;
+  --umsa-danger:           #C0392B;
+  --umsa-danger-bg:        #FAE5E3;
+  --umsa-info:             #1A5276;
+  --umsa-info-bg:          #D4E8F5;
 
   --sidebar-width:         240px;
   --topbar-height:         56px;
   --radius:                8px;
   --radius-lg:             12px;
-  --shadow:                0 2px 8px rgba(0, 77, 44, 0.08);
-  --shadow-md:             0 4px 20px rgba(0, 77, 44, 0.12);
+  --shadow:                0 2px 8px rgba(13, 52, 81, 0.08);
+  --shadow-md:             0 4px 20px rgba(13, 52, 81, 0.13);
 }
 
 /* ================================================================
@@ -844,11 +851,11 @@ label {
    ================================================================ */
 .umsa-login-page {
   min-height: 100vh;
-  background: #E8EDE9;
+  background: #E8EEF4;
   background-image:
-    radial-gradient(ellipse 70% 60% at 15% 50%, rgba(0, 107, 63, 0.08) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 60% at 85% 50%, rgba(198, 40, 40, 0.05) 0%, transparent 70%),
-    url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23006B3F' fill-opacity='0.025'%3E%3Cpath d='M50 50c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10s-10-4.477-10-10 4.477-10 10-10zM10 10c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10S0 25.523 0 20s4.477-10 10-10z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    radial-gradient(ellipse 70% 60% at 15% 50%, rgba(26, 82, 118, 0.09) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 60% at 85% 50%, rgba(192, 57, 43, 0.06) 0%, transparent 70%),
+    url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231A5276' fill-opacity='0.025'%3E%3Cpath d='M50 50c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10s-10-4.477-10-10 4.477-10 10-10zM10 10c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10S0 25.523 0 20s4.477-10 10-10z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -979,22 +986,22 @@ label {
    DARK MODE VARIABLES
    ================================================================ */
 [data-theme="dark"] {
-  --umsa-bg:             #111827;
-  --umsa-surface:        #1F2937;
-  --umsa-border:         #374151;
-  --umsa-border-strong:  #4B5563;
+  --umsa-bg:             #0D1B26;
+  --umsa-surface:        #152236;
+  --umsa-border:         #1E3450;
+  --umsa-border-strong:  #2D4A6A;
 
-  --umsa-text:           #F9FAFB;
-  --umsa-text-secondary: #D1D5DB;
-  --umsa-text-muted:     #9CA3AF;
+  --umsa-text:           #EAF1F8;
+  --umsa-text-secondary: #AABDD0;
+  --umsa-text-muted:     #6B8EAA;
 
-  --umsa-primary-light:  rgba(0, 107, 63, 0.18);
-  --umsa-accent-light:   rgba(198, 40, 40, 0.18);
+  --umsa-primary-light:  rgba(26, 82, 118, 0.22);
+  --umsa-accent-light:   rgba(192, 57, 43, 0.20);
 
   --umsa-success-bg:     rgba(27, 135, 58, 0.15);
-  --umsa-warning-bg:     rgba(224, 123, 0, 0.15);
-  --umsa-danger-bg:      rgba(198, 40, 40, 0.15);
-  --umsa-info-bg:        rgba(2, 119, 189, 0.15);
+  --umsa-warning-bg:     rgba(212, 130, 10, 0.15);
+  --umsa-danger-bg:      rgba(192, 57, 43, 0.15);
+  --umsa-info-bg:        rgba(26, 82, 118, 0.18);
 }
 
 /* Dark mode — overrides de componentes que Argon fija con colores */
@@ -1145,10 +1152,10 @@ label {
 }
 
 [data-theme="dark"] .umsa-login-page {
-  background: #0F1923;
+  background: #0D1B26;
   background-image:
-    radial-gradient(ellipse 70% 60% at 15% 50%, rgba(0, 107, 63, 0.12) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 60% at 85% 50%, rgba(198, 40, 40, 0.08) 0%, transparent 70%);
+    radial-gradient(ellipse 70% 60% at 15% 50%, rgba(26, 82, 118, 0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 60% at 85% 50%, rgba(192, 57, 43, 0.10) 0%, transparent 70%);
 }
 
 /* Transicion suave al cambiar tema */
