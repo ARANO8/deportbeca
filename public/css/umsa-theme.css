@@ -1371,6 +1371,61 @@ html {
 }
 
 /* ================================================================
+   DARK MODE — Bootstrap utility overrides
+   ================================================================ */
+
+[data-theme="dark"] .thead-light th {
+  background: rgba(255,255,255,0.05) !important;
+  color: var(--umsa-text-muted) !important;
+  border-color: var(--umsa-border) !important;
+}
+
+[data-theme="dark"] .table-bordered,
+[data-theme="dark"] .table-bordered th,
+[data-theme="dark"] .table-bordered td {
+  border-color: var(--umsa-border) !important;
+}
+
+[data-theme="dark"] .table thead th {
+  border-color: var(--umsa-border) !important;
+}
+
+[data-theme="dark"] .bg-light {
+  background: rgba(255,255,255,0.04) !important;
+  color: var(--umsa-text) !important;
+}
+
+[data-theme="dark"] .custom-select,
+[data-theme="dark"] select.form-control {
+  background-color: var(--umsa-surface) !important;
+  border-color: var(--umsa-border) !important;
+  color: var(--umsa-text) !important;
+}
+
+[data-theme="dark"] .card-footer {
+  background: rgba(255,255,255,0.03) !important;
+  border-top-color: var(--umsa-border) !important;
+}
+
+[data-theme="dark"] .pagination .page-link {
+  background: var(--umsa-surface);
+  border-color: var(--umsa-border);
+  color: var(--umsa-text-secondary);
+}
+
+[data-theme="dark"] .pagination .page-item.active .page-link {
+  background: var(--umsa-primary);
+  border-color: var(--umsa-primary);
+  color: white;
+}
+
+[data-theme="dark"] .pagination .page-item.disabled .page-link {
+  background: var(--umsa-surface);
+  border-color: var(--umsa-border);
+  color: var(--umsa-text-muted);
+}
+
+/* ================================================================
    RESPONSIVE
    ================================================================ */
 @media (max-width: 768px) {
