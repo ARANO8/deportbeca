@@ -27,17 +27,13 @@ class FixtureController extends Controller
     public function getDisciplinas($eventoId)
     {
         $evento = EventoConfiguracion::findOrFail($eventoId);
-        $disciplinasIds = is_array($evento->disciplinas_ids)
-            ? $evento->disciplinas_ids
-            : json_decode($evento->disciplinas_ids ?? '[]', true);
 
-        if (empty($disciplinasIds)) {
+        // Usar la relacion many-to-many normalizada (reemplaza whereIn sobre JSON)
+        $disciplinas = $evento->disciplines()->where('status', 'active')->get();
+
+        if ($disciplinas->isEmpty()) {
             return response()->json([]);
         }
-
-        $disciplinas = Discipline::whereIn('id', $disciplinasIds)
-            ->where('status', 'active')
-            ->get();
 
         $result = [];
         foreach ($disciplinas as $disciplina) {
@@ -178,8 +174,8 @@ class FixtureController extends Controller
 
         $lugares = Lugar::where('status', 'active')->get();
 
-        $equiposIds = is_array($serie->equipos_ids) ? $serie->equipos_ids : [];
-        $primerParticipante = Preinscripcion::whereIn('id', $equiposIds)->first();
+        // Usar la relacion many-to-many normalizada
+        $primerParticipante = $serie->preinscripciones()->first();
         $esIndividual = $primerParticipante?->tipo_inscripcion === 'individual';
 
         $tablaPosiciones = $esIndividual ? collect() : $serie->tablaPosiciones;

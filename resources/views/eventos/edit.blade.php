@@ -10,6 +10,12 @@
         <form method="POST" action="{{ route('eventos.update', $tipoEvento) }}">
             @csrf
             @method('PUT')
+            @php
+                // IDs de disciplinas ya seleccionadas para este evento (via relacion normalizada)
+                $disciplinasSeleccionadas = $configuracion->exists
+                    ? $configuracion->disciplines->pluck('id')
+                    : collect();
+            @endphp
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-8">
@@ -112,7 +118,7 @@
                                                                value="{{ $sub->id }}"
                                                                data-parent-id="{{ $disciplina->id }}"
                                                                autocomplete="off"
-                                                               {{ in_array($sub->id, $configuracion->disciplinas_ids ?? []) ? 'checked' : '' }}>
+                                                               {{ $disciplinasSeleccionadas->contains($sub->id) ? 'checked' : '' }}>
                                                         <label class="btn btn-outline-success rounded-pill" for="sub_{{ $sub->id }}">
                                                             <i class="fas fa-tag"></i> {{ $sub->nombre }}
                                                             <span class="badge bg-light text-dark ms-1">{{ $sub->codigo }}</span>
@@ -128,7 +134,7 @@
                                                        id="disciplina_{{ $disciplina->id }}" 
                                                        value="{{ $disciplina->id }}"
                                                        autocomplete="off"
-                                                       {{ in_array($disciplina->id, $configuracion->disciplinas_ids ?? []) ? 'checked' : '' }}>
+                                                       {{ $disciplinasSeleccionadas->contains($disciplina->id) ? 'checked' : '' }}>
                                                 <label class="btn btn-outline-primary rounded-pill px-4" for="disciplina_{{ $disciplina->id }}">
                                                     <i class="fas fa-check-circle"></i> {{ $disciplina->nombre }}
                                                 </label>

@@ -17,7 +17,6 @@ class EventoConfiguracion extends Model
         'codigo_acceso',
         'fecha_inicio',
         'fecha_fin',
-        'disciplinas_ids',
         'max_integrantes_grupal',
         'min_integrantes_grupal',
         'max_inscripciones',
@@ -25,7 +24,6 @@ class EventoConfiguracion extends Model
 
     protected $casts = [
         'activo' => 'boolean',
-        'disciplinas_ids' => 'array',
         'fecha_inicio' => 'date',
         'fecha_fin' => 'date',
     ];
@@ -33,7 +31,20 @@ class EventoConfiguracion extends Model
     // ========== RELACIONES ==========
 
     /**
-     * Relación con las series (fixtures)
+     * Disciplinas habilitadas para este evento (many-to-many con FK real).
+     */
+    public function disciplines()
+    {
+        return $this->belongsToMany(
+            Discipline::class,
+            'evento_configuracion_disciplinas',
+            'evento_configuracion_id',
+            'discipline_id'
+        )->withTimestamps();
+    }
+
+    /**
+     * Series (fixtures) de este evento.
      */
     public function series()
     {
@@ -41,17 +52,34 @@ class EventoConfiguracion extends Model
     }
 
     /**
-     * Relación con los partidos a través de las series
+     * Partidos a traves de las series.
      */
     public function partidos()
     {
-        return $this->hasManyThrough(Partido::class, Serie::class, 'evento_configuracion_id', 'serie_id');
+        return $this->hasManyThrough(
+            Partido::class,
+            Serie::class,
+            'evento_configuracion_id',
+            'serie_id'
+        );
     }
-    // ========== MÉTODOS DE NEGOCIO ==========
+
+    // ========== METODOS DE NEGOCIO ==========
 
     /**
-     * Genera un código de acceso único para el evento.
-     * Formato: XXX-XXXXXX (prefijo derivado del tipo + 6 caracteres aleatorios).
+     * Retorna las disciplinas activas habilitadas para este evento.
+     * Usa la relacion many-to-many normalizada (reemplaza whereIn sobre JSON).
+     */
+    public function disciplinasPermitidas()
+    {
+        return $this->disciplines()
+            ->where('status', 'active')
+            ->orderBy('nombre')
+            ->get();
+    }
+
+    /**
+     * Genera un codigo de acceso unico para el evento.
      */
     public static function generateCodigoAcceso(string $tipoEvento): string
     {
@@ -62,7 +90,7 @@ class EventoConfiguracion extends Model
     }
 
     /**
-     * Verifica si el evento está dentro del rango de fechas vigente.
+     * Verifica si el evento esta dentro del rango de fechas vigente.
      */
     public function estaVigente(): bool
     {
@@ -81,24 +109,6 @@ class EventoConfiguracion extends Model
         }
 
         return false;
-    }
-
-    /**
-     * Retorna las disciplinas habilitadas para este evento.
-     * Reemplaza la llamada que antes fallaba porque el método no existía.
-     */
-    public function disciplinasPermitidas()
-    {
-        $ids = is_array($this->disciplinas_ids) ? $this->disciplinas_ids : [];
-
-        if (empty($ids)) {
-            return collect();
-        }
-
-        return Discipline::whereIn('id', $ids)
-            ->where('status', 'active')
-            ->orderBy('nombre')
-            ->get();
     }
 
     public function inscripcionesActuales(): int

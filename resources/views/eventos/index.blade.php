@@ -198,7 +198,7 @@
             $config  = $configuraciones->firstWhere('tipo_evento', $key);
             $activo  = $config && $config->activo && $config->estaVigente();
             $fueraFecha = $config && $config->activo && !$config->estaVigente();
-            $disciplinas_count = ($config && is_array($config->disciplinas_ids)) ? count($config->disciplinas_ids) : 0;
+            $disciplinas_count = $config ? $config->disciplines->count() : 0;
         @endphp
         <div class="col-md-4 mb-4">
             <div class="evento-card">
