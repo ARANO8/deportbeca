@@ -98,7 +98,7 @@
                 Bienvenido, {{ auth()->user()->name }}
             </h4>
             <small class="text-muted">
-                {{ auth()->user()->rol->nombre ?? ucfirst(auth()->user()->role ?? 'Usuario') }}
+                {{ auth()->user()->rol->nombre ?? 'Usuario' }}
                 &nbsp;&middot;&nbsp; {{ now()->format('d/m/Y') }}
             </small>
         </div>

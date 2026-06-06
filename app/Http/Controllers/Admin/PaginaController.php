@@ -16,7 +16,7 @@ class PaginaController extends Controller
 {
     public function index(Request $request)
     {
-        $role = auth()->user()->role;
+        $role = auth()->user()->rol?->nombre;
         $pagina = Pagina::select('*')->orderBy('id', 'ASC');
         $limit = (isset($request->limit)) ? $request->limit : 10;
 
@@ -31,7 +31,7 @@ class PaginaController extends Controller
 
     public function create()
     {
-        $role = auth()->user()->role;
+        $role = auth()->user()->rol?->nombre;
         $pagina = Pagina::all();
         $destinatarios = User::all();
 
@@ -155,7 +155,7 @@ class PaginaController extends Controller
 
     public function show($id)
     {
-        $role = auth()->user()->role;
+        $role = auth()->user()->rol?->nombre;
         $enid = Crypt::decrypt($id);
         $paginas = Pagina::findOrFail($enid);
 
@@ -164,7 +164,7 @@ class PaginaController extends Controller
 
     public function edit($id)
     {
-        $role = auth()->user()->role;
+        $role = auth()->user()->rol?->nombre;
         $enid = Crypt::decrypt($id);
         $pagina = Pagina::findOrFail($enid);
 

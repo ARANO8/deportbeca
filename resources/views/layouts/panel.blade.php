@@ -56,10 +56,10 @@
     {{-- Menu principal del rol --}}
     <div class="umsa-sidebar-body">
       <p class="umsa-nav-section">
-        @if(auth()->user()->role === 'admin') Gestion @else Menu @endif
+        @if(auth()->user()->esSuperAdmin()) Gestion @else Menu @endif
       </p>
       <ul class="umsa-sidebar-nav">
-        @include('includes.panel.menu.' . auth()->user()->role)
+        @include('includes.panel.menu.' . auth()->user()->menuKey())
       </ul>
     </div>
 
@@ -148,7 +148,7 @@
             <div class="umsa-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
             <div class="d-none d-md-block">
               <div class="umsa-user-name">{{ auth()->user()->name }}</div>
-              <div class="umsa-user-role">{{ ucfirst(auth()->user()->role ?? 'Usuario') }}</div>
+              <div class="umsa-user-role">{{ auth()->user()->rol->nombre ?? 'Usuario' }}</div>
             </div>
             <i class="fas fa-chevron-down ml-1" style="font-size:9px; color:var(--umsa-text-muted);"></i>
           </a>

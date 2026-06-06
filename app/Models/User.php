@@ -23,7 +23,6 @@ class User extends Authenticatable
         'telefono',
         'apaterno',
         'amaterno',
-        'role',
         'rol_id',
         'foto',
     ];
@@ -52,6 +51,32 @@ class User extends Authenticatable
     public function rol()
     {
         return $this->belongsTo(Rol::class, 'rol_id');
+    }
+
+    /**
+     * Indica si el usuario tiene un rol con acceso total al sistema.
+     */
+    public function esSuperAdmin(): bool
+    {
+        return (bool) $this->rol?->es_super_admin;
+    }
+
+    /**
+     * Devuelve el identificador del menu del panel segun el rol del usuario.
+     * Centraliza el mapeo rol -> archivo de menu (includes/panel/menu/{key}.blade.php)
+     * para no depender del antiguo campo string 'role'.
+     */
+    public function menuKey(): string
+    {
+        if ($this->esSuperAdmin()) {
+            return 'admin';
+        }
+
+        return match (strtolower($this->rol?->nombre ?? '')) {
+            'secretario' => 'secretaria',
+            'instructor' => 'profe',
+            default => 'profe',
+        };
     }
 
     public function alertas()

@@ -66,7 +66,7 @@ class UserController extends Controller
         $this->validate($request, $rules, $messages);
 
         $user = User::create(
-            $request->only('name', 'email', 'telefono', 'apaterno', 'amaterno', 'role', 'rol_id')
+            $request->only('name', 'email', 'telefono', 'apaterno', 'amaterno', 'rol_id')
             + [
                 'status' => 'activo',
                 'password' => bcrypt($request->input('password')),
@@ -149,7 +149,7 @@ class UserController extends Controller
         $this->validate($request, $rules, $messages);
 
         $user = User::findOrFail($id);
-        $data = $request->only('name', 'email', 'telefono', 'apaterno', 'amaterno', 'role', 'status', 'rol_id');
+        $data = $request->only('name', 'email', 'telefono', 'apaterno', 'amaterno', 'status', 'rol_id');
 
         $password = $request->input('password');
         if ($password) {

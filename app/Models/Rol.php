@@ -17,6 +17,12 @@ class Rol extends Model
         'status',
     ];
 
+    // es_super_admin queda fuera de fillable a proposito: no debe asignarse
+    // por mass-assignment desde formularios. Se gestiona solo por migracion/seeder.
+    protected $casts = [
+        'es_super_admin' => 'boolean',
+    ];
+
     public function usuarios()
     {
         return $this->hasMany(User::class, 'rol_id');

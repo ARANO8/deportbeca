@@ -33,7 +33,7 @@ return new class extends Migration
             ->get(['id', 'equipos_ids', 'clasificados_ids']);
 
         foreach ($series as $serie) {
-            $equiposIds     = json_decode($serie->equipos_ids, true) ?? [];
+            $equiposIds = json_decode($serie->equipos_ids, true) ?? [];
             $clasificadosIds = json_decode($serie->clasificados_ids ?? '[]', true) ?? [];
 
             if (! is_array($equiposIds)) {
@@ -56,12 +56,12 @@ return new class extends Migration
                 }
 
                 DB::table('serie_preinscripciones')->insertOrIgnore([
-                    'serie_id'         => $serie->id,
+                    'serie_id' => $serie->id,
                     'preinscripcion_id' => $preinscripcionId,
-                    'es_clasificado'   => isset($clasificadosSet[$preinscripcionId]) ? 1 : 0,
-                    'orden'            => (int) $orden,
-                    'created_at'       => now(),
-                    'updated_at'       => now(),
+                    'es_clasificado' => isset($clasificadosSet[$preinscripcionId]) ? 1 : 0,
+                    'orden' => (int) $orden,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
             }
         }
@@ -87,7 +87,7 @@ return new class extends Migration
             ->orderBy('id')
             ->get(['serie_id', 'preinscripcion_id', 'es_clasificado']);
 
-        $equipos     = [];
+        $equipos = [];
         $clasificados = [];
 
         foreach ($rows as $row) {
@@ -99,7 +99,7 @@ return new class extends Migration
 
         foreach ($equipos as $serieId => $ids) {
             DB::table('series')->where('id', $serieId)->update([
-                'equipos_ids'     => json_encode(array_values($ids)),
+                'equipos_ids' => json_encode(array_values($ids)),
                 'clasificados_ids' => json_encode(array_values($clasificados[$serieId] ?? [])),
             ]);
         }

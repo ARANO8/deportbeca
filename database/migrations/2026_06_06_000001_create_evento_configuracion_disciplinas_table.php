@@ -46,9 +46,9 @@ return new class extends Migration
                 if ($exists) {
                     DB::table('evento_configuracion_disciplinas')->insertOrIgnore([
                         'evento_configuracion_id' => $config->id,
-                        'discipline_id'           => $disciplineId,
-                        'created_at'              => now(),
-                        'updated_at'              => now(),
+                        'discipline_id' => $disciplineId,
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ]);
                 }
             }

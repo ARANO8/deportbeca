@@ -229,8 +229,6 @@ class FixtureGenerationService implements FixtureGenerationServiceInterface
                     foreach ($partidos as $partido) {
                         Partido::create([
                             'serie_id' => $serie->id,
-                            'evento_configuracion_id' => $eventoId,
-                            'disciplina_id' => $disciplinaId,
                             'equipo_local_id' => $partido['local_id'],
                             'equipo_visitante_id' => $partido['visitante_id'],
                             'jornada' => $partido['jornada'],
@@ -328,8 +326,6 @@ class FixtureGenerationService implements FixtureGenerationServiceInterface
             for ($i = 0; $i < intdiv($count, 2); $i++) {
                 Partido::create([
                     'serie_id' => $nuevaSerie->id,
-                    'evento_configuracion_id' => $eventoId,
-                    'disciplina_id' => $disciplinaId,
                     'equipo_local_id' => $ids[$i],
                     'equipo_visitante_id' => $ids[$count - 1 - $i],
                     'jornada' => $i + 1,

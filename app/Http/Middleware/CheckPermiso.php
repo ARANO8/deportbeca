@@ -37,8 +37,9 @@ class CheckPermiso
             abort(403, 'Tu cuenta no tiene un rol asignado. Contacta al administrador del sistema.');
         }
 
-        // El rol Administrador tiene acceso irrestricto a todos los modulos
-        if (strtolower($user->rol->nombre) === 'administrador') {
+        // Los roles marcados como super admin tienen acceso irrestricto.
+        // No depende del nombre del rol: renombrarlo no rompe la autorizacion.
+        if ($user->rol->es_super_admin) {
             return $next($request);
         }
 

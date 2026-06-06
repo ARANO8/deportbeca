@@ -19,7 +19,7 @@ class AdminMiddleware
     {
         $user = auth()->user();
 
-        if ($user && $user->rol && strtolower($user->rol->nombre) === 'administrador') {
+        if ($user && $user->rol && $user->rol->es_super_admin) {
             return $next($request);
         }
 
