@@ -183,7 +183,6 @@ Route::middleware(['auth', 'permiso:roles,ver'])->group(function () {
 // ============================================
 Route::middleware(['auth', 'permiso:privilegios,ver'])->group(function () {
     Route::get('/privilegios', [PrivilegioController::class, 'index'])->name('privilegios.index');
-    Route::get('/privilegios/{id}', [PrivilegioController::class, 'show'])->name('privilegios.show');
     Route::get('/privilegios/{id}/edit', [PrivilegioController::class, 'edit'])->name('privilegios.edit');
     Route::put('/privilegios/{id}', [PrivilegioController::class, 'update'])->name('privilegios.update');
 });

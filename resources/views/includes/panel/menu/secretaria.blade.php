@@ -1,48 +1,43 @@
 @php $r = request(); @endphp
+
 <li class="nav-item {{ $r->routeIs('home') || $r->is('*/home') ? 'active' : '' }}">
     <a class="nav-link {{ $r->routeIs('home') || $r->is('*/home') ? 'active' : '' }}" href="{{ url('/home') }}">
-      <i class="ni ni-tv-2"></i><strong>Dashboard</strong>
+        <i class="ni ni-tv-2"></i><strong>Dashboard</strong>
     </a>
 </li>
-  <li class="nav-item">
-    <a class="nav-link " href="{{url('/especialidades')}}">
-      <i class="ni ni-briefcase-24 text-orange"></i><strong>Especialidades</strong>
-    </a>
-  </li>
-  <li class="nav-item">
-      <a class="nav-link  " href="{{url('/medicos')}}">
-        <i class="fas fa-stethoscope text-info"></i><strong>Médicos</strong>
-      </a>
-    </li>
-  <li class="nav-item">
-    <a class="nav-link " href="{{url('/pacientes')}}">
-      <i class="fas fa-bed text-red"></i><strong> Pacientes</strong>
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link " href="{{url('/historias')}}">
-      <i class="ni ni-book-bookmark text-pink "></i><strong>Historial de pacientes</strong>
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link " href="{{url('/consultas')}}">
-      <i class="fas fa-bullhorn text-success"></i><strong>Tipo consulta</strong>
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link " href="{{url('/reservarcitas/create')}}">
-      <i class="ni ni-calendar-grid-58 text-primary"></i><strong>Reserva citas</strong>
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link " href="{{url('/miscitas')}}">
-      <i class="fas fa-clock text-info"></i><strong>Citas médicas</strong>
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link " href="{{url('/paginawebs')}}">
-      <i class="ni ni-ungroup text-danger"></i><strong>Pagina web</strong>
-    </a>
-  </li>
 
- 
+<li class="nav-item {{ $r->routeIs('archivador.*') ? 'active' : '' }}">
+    <a class="nav-link {{ $r->routeIs('archivador.*') ? 'active' : '' }}" href="{{ route('archivador.index') }}">
+        <i class="fas fa-archive"></i><strong>Inscripcion de Equipos</strong>
+    </a>
+</li>
+
+<li class="nav-item {{ $r->routeIs('eventos.*') ? 'active' : '' }}">
+    <a class="nav-link {{ $r->routeIs('eventos.*') ? 'active' : '' }}" href="{{ route('eventos.index') }}">
+        <i class="fas fa-calendar-alt"></i><strong>Configurar Eventos</strong>
+    </a>
+</li>
+
+<li class="nav-item {{ $r->routeIs('fixture.*') ? 'active' : '' }}">
+    <a class="nav-link {{ $r->routeIs('fixture.*') ? 'active' : '' }}" href="{{ route('fixture.index') }}">
+        <i class="fas fa-table"></i><strong>Fixture</strong>
+    </a>
+</li>
+
+<li class="nav-item {{ $r->routeIs('disciplines.*') ? 'active' : '' }}">
+    <a class="nav-link {{ $r->routeIs('disciplines.*') ? 'active' : '' }}" href="{{ route('disciplines.index') }}">
+        <i class="fas fa-futbol"></i><strong>Disciplinas</strong>
+    </a>
+</li>
+
+<li class="nav-item {{ $r->routeIs('carreras.*') ? 'active' : '' }}">
+    <a class="nav-link {{ $r->routeIs('carreras.*') ? 'active' : '' }}" href="{{ route('carreras.index') }}">
+        <i class="fas fa-graduation-cap"></i><strong>Carreras</strong>
+    </a>
+</li>
+
+<li class="nav-item {{ $r->routeIs('admin.lugares.*') ? 'active' : '' }}">
+    <a class="nav-link {{ $r->routeIs('admin.lugares.*') ? 'active' : '' }}" href="{{ route('admin.lugares.index') }}">
+        <i class="fas fa-map-marker-alt"></i><strong>Lugares</strong>
+    </a>
+</li>
