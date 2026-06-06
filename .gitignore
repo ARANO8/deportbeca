@@ -1,0 +1,45 @@
+# Dependencias
+/node_modules
+/vendor
+composer.phar
+
+# Entorno y secretos
+.env
+.env.backup
+.env.production
+.env.*.local
+auth.json
+
+# Laravel
+/public/hot
+/public/storage
+/storage/*.key
+/storage/*.sql
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+
+# Respaldos de base de datos
+*.sql
+
+# Subidas de usuario (el contenido no se versiona; la carpeta se conserva con .gitkeep)
+/public/imagen/*
+!/public/imagen/.gitkeep
+
+# Carpetas residuo del sistema anterior (recibos / tickets, sin uso en el sistema deportivo)
+/public/comprobantes_consumo
+/public/comprobantes_pagos
+/public/tickets_evidencias
+
+# Logs
+npm-debug.log
+yarn-error.log
+
+# Editores / SO
+/.idea
+/.fleet
+/.vscode
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
