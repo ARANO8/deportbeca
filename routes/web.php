@@ -97,17 +97,19 @@ Route::prefix('resultados')->name('portal.')->group(function () {
     Route::get('/evento/{eventoId}/fixture', [PortalController::class, 'fixture'])->name('fixture');
 });
 
-// ==================== DISCIPLINAS (con autenticación) ====================
+// ==================== PERFIL Y CONTRASENA (cualquier usuario autenticado) ====================
+Route::middleware(['auth'])->group(function () {
+    Route::get('/NewPassword', [UserSenttingsController::class, 'NewPassword'])->name('NewPassword');
+    Route::post('/change/password', [UserSenttingsController::class, 'changePassword'])->name('changePassword');
+    Route::get('/perfil', [UserSenttingsController::class, 'editarPerfil'])->name('perfil.editar');
+    Route::put('/perfil', [UserSenttingsController::class, 'actualizarPerfil'])->name('perfil.actualizar');
+});
+
+// ==================== DISCIPLINAS (con autenticacion) ====================
 Route::middleware(['auth', 'permiso:disciplinas,ver'])->group(function () {
     Route::resource('disciplines', DisciplineController::class);
     Route::put('disciplines/{id}/activo', [DisciplineController::class, 'activo'])->name('disciplines.activo');
     Route::put('disciplines/{id}/inactivo', [DisciplineController::class, 'inactivo'])->name('disciplines.inactivo');
-
-    Route::get('/NewPassword', [UserSenttingsController::class, 'NewPassword'])->name('NewPassword');
-    Route::post('/change/password', [UserSenttingsController::class, 'changePassword'])->name('changePassword');
-
-    Route::get('/perfil', [UserSenttingsController::class, 'editarPerfil'])->name('perfil.editar');
-    Route::put('/perfil', [UserSenttingsController::class, 'actualizarPerfil'])->name('perfil.actualizar');
 });
 
 Route::middleware(['auth'])->group(function () {
