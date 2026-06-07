@@ -48,10 +48,14 @@
       </div>
       <div style="position:relative;">
         <i class="fas fa-lock" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--umsa-text-muted); font-size:13px; z-index:2;"></i>
-        <input type="password" name="password" class="form-control"
+        <input type="password" name="password" id="loginPassword" class="form-control"
                placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
                required autocomplete="current-password"
-               style="padding-left:36px !important; height:42px !important;">
+               style="padding-left:36px !important; padding-right:42px !important; height:42px !important;">
+        <button type="button" id="togglePassword" aria-label="Mostrar contrasena"
+                style="position:absolute; right:6px; top:50%; transform:translateY(-50%); background:none; border:none; padding:6px 8px; cursor:pointer; color:var(--umsa-text-muted); z-index:3; line-height:1;">
+          <i class="fas fa-eye" id="togglePasswordIcon" style="font-size:14px;"></i>
+        </button>
       </div>
     </div>
 
@@ -65,4 +69,21 @@
   </form>
 
 </div>
+
+<script>
+(function () {
+  var input = document.getElementById('loginPassword');
+  var btn = document.getElementById('togglePassword');
+  var icon = document.getElementById('togglePasswordIcon');
+  if (!input || !btn || !icon) return;
+  btn.addEventListener('click', function () {
+    var oculto = input.type === 'password';
+    input.type = oculto ? 'text' : 'password';
+    icon.classList.toggle('fa-eye', !oculto);
+    icon.classList.toggle('fa-eye-slash', oculto);
+    btn.setAttribute('aria-label', oculto ? 'Ocultar contrasena' : 'Mostrar contrasena');
+    input.focus();
+  });
+})();
+</script>
 @endsection
