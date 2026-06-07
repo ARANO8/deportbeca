@@ -183,8 +183,8 @@
     <div class="eventos-hero">
         <div class="row align-items-center">
             <div class="col-md-9">
-                <h1><i class="fas fa-calendar-alt mr-3"></i>Configuracion de Eventos</h1>
-                <p>Gestiona los eventos deportivos, activa inscripciones y define disciplinas participantes.</p>
+                <h1><i class="fas fa-calendar-alt mr-3"></i>Eventos</h1>
+                <p>Informacion de los eventos deportivos: estado, vigencia, disciplinas habilitadas e inscripciones.</p>
             </div>
             <div class="col-md-3 text-right">
                 <i class="fas fa-trophy text-white" style="font-size:60px;opacity:0.15;"></i>
@@ -238,15 +238,23 @@
                 </div>
 
                 <div class="evento-card-footer">
-                    <a href="{{ route('eventos.edit', $key) }}" class="btn-configurar">
+                    @if($config)
+                    <a href="{{ route('eventos.show', $key) }}" class="btn-configurar" style="background:var(--umsa-surface);color:var(--umsa-primary);border:1px solid var(--umsa-border);">
+                        <i class="fas fa-eye mr-2"></i>Ver detalle
+                    </a>
+                    @endif
+                    @puede('eventos','editar')
+                    <a href="{{ route('eventos.edit', $key) }}" class="btn-configurar" style="margin-top:8px;">
                         <i class="fas fa-cog mr-2"></i>Configurar
                     </a>
+                    @endpuede
                 </div>
             </div>
         </div>
         @endforeach
     </div>
 
+    @puede('eventos','editar')
     <div class="info-box">
         <i class="fas fa-info-circle mr-2"></i>
         <strong>Como funciona:</strong>
@@ -254,6 +262,7 @@
         Los representantes ingresan el codigo en la pagina web para inscribirse.
         Revise las inscripciones en el <a href="{{ route('archivador.index') }}" style="color:var(--umsa-primary);">Archivador</a>.
     </div>
+    @endpuede
 
 </div>
 @endsection

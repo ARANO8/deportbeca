@@ -130,6 +130,7 @@ Route::middleware(['auth'])->prefix('disciplinas')->name('disciplinas.')->group(
 Route::prefix('eventos')->middleware(['auth'])->group(function () {
     Route::get('/', [EventoConfiguracionController::class, 'index'])->middleware('permiso:eventos,ver')->name('eventos.index');
     Route::get('{tipoEvento}/edit', [EventoConfiguracionController::class, 'edit'])->middleware('permiso:eventos,editar')->name('eventos.edit');
+    Route::get('{tipoEvento}', [EventoConfiguracionController::class, 'show'])->middleware('permiso:eventos,ver')->name('eventos.show');
     Route::put('{tipoEvento}', [EventoConfiguracionController::class, 'update'])->middleware('permiso:eventos,editar')->name('eventos.update');
 });
 

@@ -14,7 +14,7 @@
 
 <li class="nav-item {{ $r->routeIs('eventos.*') ? 'active' : '' }}">
     <a class="nav-link {{ $r->routeIs('eventos.*') ? 'active' : '' }}" href="{{ route('eventos.index') }}">
-        <i class="fas fa-calendar-alt"></i><strong>Configurar Eventos</strong>
+        <i class="fas fa-calendar-alt"></i><strong>Eventos</strong>
     </a>
 </li>
 

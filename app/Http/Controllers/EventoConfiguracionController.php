@@ -17,6 +17,19 @@ class EventoConfiguracionController extends Controller
         return view('eventos.index', compact('configuraciones'));
     }
 
+    /**
+     * Vista informativa (solo lectura) de un evento configurado.
+     * Accesible con permiso eventos,ver; no expone controles de configuracion.
+     */
+    public function show($tipoEvento)
+    {
+        $configuracion = EventoConfiguracion::with('disciplines')
+            ->where('tipo_evento', $tipoEvento)
+            ->firstOrFail();
+
+        return view('eventos.show', compact('configuracion', 'tipoEvento'));
+    }
+
     public function edit($tipoEvento)
     {
         // Eager load disciplines para pre-seleccionar los checkboxes correctamente
