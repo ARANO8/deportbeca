@@ -65,19 +65,23 @@
         </div>
         
         <!-- Mapa de ubicación -->
-        @if($discipline->ubicacion_mapa)
+        @if($discipline->tieneCoordenadas() || $discipline->ubicacion_mapa)
         <div class="row mt-4">
             <div class="col-md-12">
                 <div class="alert alert-info">
-                    <strong><i class="fas fa-map-marker-alt"></i> 🗺️ Ubicación del evento:</strong>
+                    <strong><i class="fas fa-map-marker-alt"></i> Ubicacion:</strong>
                 </div>
+                @if($discipline->tieneCoordenadas())
+                    @include('partials.map-display', ['id' => 'mapVerDisciplina', 'lat' => $discipline->latitud, 'lng' => $discipline->longitud])
+                @else
                 <div class="embed-responsive embed-responsive-16by9">
-                    <iframe class="embed-responsive-item" 
-                            src="{{ $discipline->ubicacion_mapa }}" 
-                            style="border:0; border-radius: 10px;" 
+                    <iframe class="embed-responsive-item"
+                            src="{{ $discipline->ubicacion_mapa }}"
+                            style="border:0; border-radius: 10px;"
                             allowfullscreen="" loading="lazy">
                     </iframe>
                 </div>
+                @endif
             </div>
         </div>
         @else

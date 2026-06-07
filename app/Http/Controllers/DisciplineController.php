@@ -49,7 +49,8 @@ class DisciplineController extends Controller
             'descripcion' => 'nullable|string',
             'parent_id' => 'nullable|exists:disciplines,id',
             'status' => 'required|in:active,inactive',
-            'ubicacion_mapa' => 'nullable|url',
+            'latitud' => 'nullable|numeric|between:-90,90',
+            'longitud' => 'nullable|numeric|between:-180,180',
         ]);
 
         Discipline::create($validated);
@@ -88,7 +89,8 @@ class DisciplineController extends Controller
             'descripcion' => 'nullable|string',
             'parent_id' => 'nullable|exists:disciplines,id',
             'status' => 'required|in:active,inactive',
-            'ubicacion_mapa' => 'nullable|url',
+            'latitud' => 'nullable|numeric|between:-90,90',
+            'longitud' => 'nullable|numeric|between:-180,180',
         ]);
 
         $discipline->update($validated);

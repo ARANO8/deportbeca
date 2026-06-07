@@ -17,8 +17,23 @@ class Discipline extends Model
         'descripcion',
         'parent_id',
         'status',
-        'ubicacion_mapa', // Agregado el campo del mapa
+        'ubicacion_mapa',
+        'latitud',
+        'longitud',
     ];
+
+    protected $casts = [
+        'latitud' => 'float',
+        'longitud' => 'float',
+    ];
+
+    /**
+     * Indica si la disciplina tiene coordenadas para mostrar en el mapa.
+     */
+    public function tieneCoordenadas(): bool
+    {
+        return $this->latitud !== null && $this->longitud !== null;
+    }
 
     // Relación para obtener las subdisciplinas (hijos)
     public function children()

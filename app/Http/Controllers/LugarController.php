@@ -27,8 +27,9 @@ class LugarController extends Controller
             'nombre' => 'required|string|max:150',
             'descripcion' => 'nullable|string',
             'direccion' => 'required|string|max:255',
-            'embed_mapa' => 'nullable|string',
             'status' => 'required|in:active,inactive',
+            'latitud' => 'nullable|numeric|between:-90,90',
+            'longitud' => 'nullable|numeric|between:-180,180',
         ]);
 
         Lugar::create($validated);
@@ -61,8 +62,9 @@ class LugarController extends Controller
             'nombre' => 'required|string|max:150',
             'descripcion' => 'nullable|string',
             'direccion' => 'required|string|max:255',
-            'embed_mapa' => 'nullable|string',
             'status' => 'required|in:active,inactive',
+            'latitud' => 'nullable|numeric|between:-90,90',
+            'longitud' => 'nullable|numeric|between:-180,180',
         ]);
 
         $lugar->update($validated);

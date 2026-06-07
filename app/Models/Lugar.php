@@ -25,6 +25,8 @@ class Lugar extends Model
         'direccion',
         'embed_mapa',
         'status',
+        'latitud',
+        'longitud',
     ];
 
     /**
@@ -32,9 +34,19 @@ class Lugar extends Model
      */
     protected $casts = [
         'status' => 'string',
+        'latitud' => 'float',
+        'longitud' => 'float',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Indica si el lugar tiene coordenadas para mostrar en el mapa.
+     */
+    public function tieneCoordenadas(): bool
+    {
+        return $this->latitud !== null && $this->longitud !== null;
+    }
 
     /**
      * Scopes para consultas comunes

@@ -89,32 +89,8 @@
             </div>
             
             <div class="form-group">
-                <label for="ubicacion_mapa">
-                    <strong><i class="fas fa-map-marker-alt"></i> 🗺️ URL del Mapa (Google Maps Embed)</strong>
-                </label>
-                <input type="url" name="ubicacion_mapa" id="ubicacion_mapa" class="form-control" 
-                       value="{{ old('ubicacion_mapa') }}" 
-                       placeholder="https://www.google.com/maps/embed?pb=...">
-                <small class="text-info">
-                    <i class="fas fa-info-circle"></i> 
-                    <strong>Instrucciones:</strong> Ve a Google Maps → Busca la ubicación → Haz clic en "Compartir" → 
-                    Selecciona "Insertar un mapa" → Copia la URL que está dentro de src="..."
-                </small>
-                @error('ubicacion_mapa')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            
-            <!-- Vista previa del mapa -->
-            <div id="mapPreview" class="mt-3" style="display: none;">
-                <div class="alert alert-info">
-                    <strong><i class="fas fa-map"></i> 🗺️ Vista previa del mapa:</strong>
-                </div>
-                <div class="embed-responsive embed-responsive-16by9">
-                    <iframe id="mapIframe" class="embed-responsive-item" 
-                            style="border:0; border-radius: 10px;" 
-                            allowfullscreen="" loading="lazy"></iframe>
-                </div>
+                <label><strong><i class="fas fa-map-marker-alt"></i> Ubicacion en el mapa</strong></label>
+                @include('partials.map-picker', ['id' => 'mapDisciplina', 'latField' => 'latitud', 'lngField' => 'longitud', 'lat' => null, 'lng' => null])
             </div>
             
             <hr>
@@ -132,31 +108,3 @@
 </div>
 @endsection
 
-@section('scripts')
-<script>
-$(document).ready(function() {
-    // Vista previa del mapa
-    $('#ubicacion_mapa').on('change keyup paste', function() {
-        var mapUrl = $(this).val();
-        
-        if (mapUrl && mapUrl.trim() !== '') {
-            if (mapUrl.includes('google.com/maps/embed')) {
-                $('#mapIframe').attr('src', mapUrl);
-                $('#mapPreview').fadeIn();
-            } else {
-                $('#mapPreview').fadeOut();
-                toastr.warning('⚠️ Por favor, ingresa una URL válida de Google Maps Embed');
-            }
-        } else {
-            $('#mapPreview').fadeOut();
-            $('#mapIframe').attr('src', '');
-        }
-    });
-    
-    // Disparar el evento si ya hay un valor (por si hay error de validación)
-    if ($('#ubicacion_mapa').val()) {
-        $('#ubicacion_mapa').trigger('change');
-    }
-});
-</script>
-@endsection

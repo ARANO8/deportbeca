@@ -38,9 +38,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Codigo embed de Google Maps</label>
-                            <textarea name="embed_mapa" class="form-control" rows="4">{{ old('embed_mapa', $lugar->embed_mapa) }}</textarea>
-                            <small class="text-muted">Pega aqui el codigo iframe de Google Maps</small>
+                            <label>Ubicacion en el mapa</label>
+                            @include('partials.map-picker', ['id' => 'mapLugar', 'latField' => 'latitud', 'lngField' => 'longitud', 'lat' => $lugar->latitud, 'lng' => $lugar->longitud])
                         </div>
 
                         <div class="form-group">

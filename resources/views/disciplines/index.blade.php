@@ -64,7 +64,7 @@
                     <td>{{ $discipline->nombre }}</td>
                     <td>{{ $discipline->disciplinaPadre->nombre ?? '-' }}</td>
                     <td>
-                        @if($discipline->ubicacion_mapa)
+                        @if($discipline->tieneCoordenadas() || $discipline->ubicacion_mapa)
                             <span class="badge badge-success">
                                 <i class="fas fa-check-circle"></i> Configurado
                             </span>

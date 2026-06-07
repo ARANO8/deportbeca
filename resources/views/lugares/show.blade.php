@@ -49,29 +49,26 @@
                         </div>
                     </div>
 
-                    @if($lugar->embed_mapa)
+                    @if($lugar->tieneCoordenadas() || $lugar->embed_mapa)
                     <div class="row mt-3">
                         <div class="col-md-12">
                             <strong>Mapa:</strong>
                             <div class="mt-2">
-                                {{-- Solo se permite el iframe de Google Maps; cualquier otro contenido se escapa --}}
-                                @php
-                                    $mapaSanitizado = null;
-                                    if (preg_match(
-                                        '/^<iframe\s[^>]*src=["\']https:\/\/www\.google\.com\/maps\/embed[^"\']*["\'][^>]*><\/iframe>$/i',
-                                        trim($lugar->embed_mapa)
-                                    )) {
-                                        $mapaSanitizado = $lugar->embed_mapa;
-                                    }
-                                @endphp
-
-                                @if($mapaSanitizado)
-                                    {!! $mapaSanitizado !!}
+                                @if($lugar->tieneCoordenadas())
+                                    @include('partials.map-display', ['id' => 'mapVerLugar', 'lat' => $lugar->latitud, 'lng' => $lugar->longitud])
                                 @else
-                                    <div class="alert alert-warning py-1 small">
-                                        <i class="fas fa-exclamation-triangle mr-1"></i>
-                                        El embed almacenado no es un iframe de Google Maps válido.
-                                    </div>
+                                    {{-- Respaldo: registros antiguos con embed de Google Maps --}}
+                                    @php
+                                        $mapaSanitizado = preg_match('/^<iframe\s[^>]*src=["\']https:\/\/www\.google\.com\/maps\/embed[^"\']*["\'][^>]*><\/iframe>$/i', trim($lugar->embed_mapa)) ? $lugar->embed_mapa : null;
+                                    @endphp
+                                    @if($mapaSanitizado)
+                                        {!! $mapaSanitizado !!}
+                                    @else
+                                        <div class="alert alert-warning py-1 small">
+                                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                                            El embed almacenado no es un iframe de Google Maps valido.
+                                        </div>
+                                    @endif
                                 @endif
                             </div>
                         </div>
