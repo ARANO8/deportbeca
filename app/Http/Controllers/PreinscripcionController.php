@@ -65,7 +65,7 @@ class PreinscripcionController extends Controller
     {
         $request->validate([
             'tipo_inscripcion' => 'required|in:individual,grupal',
-            'disciplina_id' => 'required|integer|exists:disciplinas,id',
+            'disciplina_id' => 'required|integer|exists:disciplines,id',
             'representante_nombre' => 'required|string|max:255',
             'representante_ci' => 'required|string|max:50',
             'representante_email' => 'required|email|max:255',
