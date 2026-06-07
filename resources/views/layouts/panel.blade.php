@@ -59,7 +59,7 @@
         @if(auth()->user()->esSuperAdmin()) Gestion @else Menu @endif
       </p>
       <ul class="umsa-sidebar-nav">
-        @include('includes.panel.menu.' . auth()->user()->menuKey())
+        @include('includes.panel.menu.sidebar')
       </ul>
     </div>
 

@@ -8,7 +8,7 @@
 </h6>
 
 <ul class="navbar-nav">
-  @include('includes.panel.menu.'.auth()->user()->menuKey())
+  @include('includes.panel.menu.sidebar')
     <li class="nav-item">
       <a href="{{ route('alertas.index') }}" class="nav-link position-relative" title="Alertas">
         <i class="fas fa-bell"></i>

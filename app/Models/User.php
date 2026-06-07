@@ -75,24 +75,6 @@ class User extends Authenticatable
         return (bool) $this->rol?->tienePermiso($modulo, $accion);
     }
 
-    /**
-     * Devuelve el identificador del menu del panel segun el rol del usuario.
-     * Centraliza el mapeo rol -> archivo de menu (includes/panel/menu/{key}.blade.php)
-     * para no depender del antiguo campo string 'role'.
-     */
-    public function menuKey(): string
-    {
-        if ($this->esSuperAdmin()) {
-            return 'admin';
-        }
-
-        return match (strtolower($this->rol?->nombre ?? '')) {
-            'secretario' => 'secretaria',
-            'instructor' => 'profe',
-            default => 'profe',
-        };
-    }
-
     public function alertas()
     {
         return $this->hasMany(Alerta::class)->orderBy('created_at', 'desc');
