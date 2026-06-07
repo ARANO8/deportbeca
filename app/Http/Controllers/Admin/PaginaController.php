@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Pagina;
 use App\Models\User;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
@@ -156,7 +157,11 @@ class PaginaController extends Controller
     public function show($id)
     {
         $role = auth()->user()->rol?->nombre;
-        $enid = Crypt::decrypt($id);
+        try {
+            $enid = Crypt::decrypt($id);
+        } catch (DecryptException $e) {
+            abort(404);
+        }
         $paginas = Pagina::findOrFail($enid);
 
         return view('pagina.show', compact('paginas', 'role'));
@@ -165,7 +170,11 @@ class PaginaController extends Controller
     public function edit($id)
     {
         $role = auth()->user()->rol?->nombre;
-        $enid = Crypt::decrypt($id);
+        try {
+            $enid = Crypt::decrypt($id);
+        } catch (DecryptException $e) {
+            abort(404);
+        }
         $pagina = Pagina::findOrFail($enid);
 
         return view('pagina.edit', compact('pagina', 'role'));

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Rol;
 use App\Models\User;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
@@ -104,7 +105,11 @@ class UserController extends Controller
 
     public function show($id)
     {
-        $enid = Crypt::decrypt($id);
+        try {
+            $enid = Crypt::decrypt($id);
+        } catch (DecryptException $e) {
+            abort(404);
+        }
         $users = User::with('rol')->findOrFail($enid);
 
         return view('user.show', compact('users'));
@@ -112,7 +117,11 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        $enid = Crypt::decrypt($id);
+        try {
+            $enid = Crypt::decrypt($id);
+        } catch (DecryptException $e) {
+            abort(404);
+        }
         $user = User::findOrFail($enid);
         $roles = Rol::where('status', 'active')->get();
 
