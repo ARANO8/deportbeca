@@ -10,9 +10,11 @@
                 </h3>
             </div>
             <div class="col text-right">
+                @puede('disciplinas','crear')
                 <a href="{{ route('disciplinas.create') }}" class="btn btn-sm btn-primary">
                     <i class="fas fa-plus"></i> Nueva Disciplina
                 </a>
+                @endpuede
             </div>
         </div>
     </div>
@@ -81,9 +83,12 @@
                     </td>
                     <td>{{ $discipline->created_at->format('d/m/Y') }}</td>
                     <td>
+                        @puede('disciplinas','ver')
                         <a href="{{ route('disciplinas.show', $discipline->id) }}" class="btn btn-sm btn-info" title="Ver">
                             <i class="fas fa-eye"></i>
                         </a>
+                        @endpuede
+                        @puede('disciplinas','editar')
                         <a href="{{ route('disciplinas.edit', $discipline->id) }}" class="btn btn-sm btn-warning" title="Editar">
                             <i class="fas fa-edit"></i>
                         </a>
@@ -104,6 +109,8 @@
                                 </button>
                             </form>
                         @endif
+                        @endpuede
+                        @puede('disciplinas','eliminar')
                         <form action="{{ route('disciplinas.destroy', $discipline->id) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('¿Eliminar esta disciplina?')">
                             @csrf
                             @method('DELETE')
@@ -111,6 +118,7 @@
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
+                        @endpuede
                     </td>
                 </tr>
                 @empty

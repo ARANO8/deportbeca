@@ -8,9 +8,11 @@
                 <div class="card-header">
                     <h3 class="card-title">Gestion de Lugares</h3>
                     <div class="card-tools">
+                        @puede('lugares','crear')
                         <a href="{{ route('admin.lugares.create') }}" class="btn btn-primary btn-sm">
                             <i class="fas fa-plus"></i> Nuevo Lugar
                         </a>
+                        @endpuede
                     </div>
                 </div>
                 <div class="card-body">
@@ -48,9 +50,12 @@
                                 </td>
                                 <td>
                                     <div class="btn-group">
+                                        @puede('lugares','ver')
                                         <a href="{{ route('admin.lugares.show', $lugar->id) }}" class="btn btn-info btn-sm" title="Ver">
                                             <i class="fas fa-eye"></i>
                                         </a>
+                                        @endpuede
+                                        @puede('lugares','editar')
                                         <a href="{{ route('admin.lugares.edit', $lugar->id) }}" class="btn btn-warning btn-sm" title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
@@ -65,6 +70,8 @@
                                                 <button class="btn btn-success btn-sm" title="Activar"><i class="fas fa-check"></i></button>
                                             </form>
                                         @endif
+                                        @endpuede
+                                        @puede('lugares','eliminar')
                                         <form action="{{ route('admin.lugares.destroy', $lugar->id) }}" method="POST" style="display:inline">
                                             @csrf
                                             @method('DELETE')
@@ -72,6 +79,7 @@
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
+                                        @endpuede
                                     </div>
                                 </td>
                             </tr>

@@ -47,7 +47,9 @@
                 </h3>
             </div>
             <div class="col text-right">
+                @puede('usuarios','crear')
                 <a href="{{url('/users/create')}}" class="btn btn-sm btn-primary">Nuevo usuario</a>
+                @endpuede
                 
                 <div class="modal fade" id="modal-notification" tabindex="-1" role="dialog" aria-labelledby="modal-notification" aria-hidden="true">
                     <div class="modal-dialog modal-danger modal-dialog-centered modal-" role="document">
@@ -125,6 +127,7 @@
                     </th>
                     <td>
                         <div class="btn-group" role="group">
+                            @puede('usuarios','editar')
                             <a href="{{url('/users/'.Crypt::encrypt($user->id).'/edit')}}" class="btn btn-sm btn-primary" title="Editar usuario">
                                 <i class="fas fa-edit"></i> 
                             </a>
@@ -143,9 +146,12 @@
                                 </form>
                             @endif
                             
+                            @endpuede
+                            @puede('usuarios','ver')
                             <a href="{{url('/users/'.Crypt::encrypt($user->id))}}" class="btn btn-sm btn-info" title="Ver detalles">
                                 <i class="fas fa-eye"></i> 
                             </a>
+                            @endpuede
                         </div>
                     </td>
                 </tr>

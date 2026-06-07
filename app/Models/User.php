@@ -62,6 +62,20 @@ class User extends Authenticatable
     }
 
     /**
+     * Indica si el usuario puede realizar una accion sobre un modulo.
+     * El super admin puede todo; el resto segun la matriz rol_modulo_permiso.
+     * Misma logica que el middleware CheckPermiso, reutilizable en las vistas.
+     */
+    public function puede(string $modulo, string $accion = 'ver'): bool
+    {
+        if ($this->esSuperAdmin()) {
+            return true;
+        }
+
+        return (bool) $this->rol?->tienePermiso($modulo, $accion);
+    }
+
+    /**
      * Devuelve el identificador del menu del panel segun el rol del usuario.
      * Centraliza el mapeo rol -> archivo de menu (includes/panel/menu/{key}.blade.php)
      * para no depender del antiguo campo string 'role'.

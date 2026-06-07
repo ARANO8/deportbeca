@@ -67,9 +67,11 @@
             </div>
             
             <div class="col text-right">
+                @puede('carreras','crear')
                 <a href="{{ route('carreras.create') }}" class="btn btn-sm btn-primary">
                     <i class="fas fa-plus"></i> Nueva Carrera
                 </a>
+                @endpuede
             </div>
         </div>
     </div>
@@ -115,13 +117,16 @@
                     </td>
                     <td>
                         <div class="btn-group" role="group">
+                            @puede('carreras','ver')
                             <a href="{{ route('carreras.show', $carrera->id) }}" class="btn btn-sm btn-info" title="Ver detalles">
                                 <i class="fas fa-eye"></i>
                             </a>
+                            @endpuede
+                            @puede('carreras','editar')
                             <a href="{{ route('carreras.edit', $carrera->id) }}" class="btn btn-sm btn-primary" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            
+
                             @if($carrera->status == 'inactive')
                                 <form action="{{ route('carreras.activo', $carrera->id) }}" method="POST" style="display:inline" onsubmit="return confirm('¿Activar esta carrera?')">
                                     @csrf @method('PATCH')
@@ -133,7 +138,8 @@
                                     <button class="btn btn-sm btn-warning" title="Inactivar"><i class="fas fa-ban"></i></button>
                                 </form>
                             @endif
-                            
+                            @endpuede
+                            @puede('carreras','eliminar')
                             <button type="button" class="btn btn-sm btn-danger" title="Eliminar"
                                     onclick="confirmDelete({{$carrera->id}}, '{{ addslashes($carrera->nombre) }}')">
                                 <i class="fas fa-trash"></i>
@@ -142,6 +148,7 @@
                                 @csrf
                                 @method('DELETE')
                             </form>
+                            @endpuede
                         </div>
                     </td>
                 </tr>
