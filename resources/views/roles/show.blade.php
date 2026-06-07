@@ -11,7 +11,7 @@
                         <a href="{{ route('roles.edit', $rol->id) }}" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Editar
                         </a>
-                        
+
                         <a href="{{ route('roles.index') }}" class="btn btn-secondary btn-sm">
                             <i class="fas fa-arrow-left"></i> Volver
                         </a>
@@ -42,31 +42,31 @@
                         <div class="col-md-12">
                             <strong>Permisos asignados:</strong>
                             <div class="mt-2">
+                                @if($rol->es_super_admin)
+                                    <div class="alert alert-info py-2">
+                                        <i class="fas fa-crown"></i> Super administrador: acceso total a todos los modulos.
+                                    </div>
+                                @endif
                                 @php
-                                    $modulos = ['usuarios', 'carreras', 'disciplinas', 'lugares', 'preinscripciones'];
-                                    $permisosLista = [];
-                                    foreach ($modulos as $modulo) {
-                                        $permiso = \App\Models\RolModuloPermiso::where('rol_id', $rol->id)
-                                            ->where('modulo', $modulo)
-                                            ->first();
-                                        
-                                        $permisosTexto = [];
-                                        if ($permiso->ver ?? false) $permisosTexto[] = 'Ver';
-                                        if ($permiso->crear ?? false) $permisosTexto[] = 'Crear';
-                                        if ($permiso->editar ?? false) $permisosTexto[] = 'Editar';
-                                        if ($permiso->eliminar ?? false) $permisosTexto[] = 'Eliminar';
-                                        
-                                        if (count($permisosTexto) > 0) {
-                                            $permisosLista[] = '<strong>' . ucfirst($modulo) . ':</strong> ' . implode(', ', $permisosTexto);
-                                        } else {
-                                            $permisosLista[] = '<strong>' . ucfirst($modulo) . ':</strong> Sin permisos';
-                                        }
-                                    }
+                                    $etiquetas = ['ver' => 'Ver', 'crear' => 'Crear', 'editar' => 'Editar', 'eliminar' => 'Eliminar'];
                                 @endphp
                                 <ul>
-                                    @foreach($permisosLista as $item)
-                                        <li>{!! $item !!}</li>
-                                    @endforeach
+                                    @forelse($rol->permisosModulo as $permiso)
+                                        @php
+                                            $acciones = [];
+                                            foreach ($etiquetas as $col => $label) {
+                                                if ($permiso->$col) {
+                                                    $acciones[] = $label;
+                                                }
+                                            }
+                                        @endphp
+                                        <li>
+                                            <strong>{{ ucfirst($permiso->modulo) }}:</strong>
+                                            {{ count($acciones) ? implode(', ', $acciones) : 'Sin permisos' }}
+                                        </li>
+                                    @empty
+                                        <li class="text-muted">Este rol aun no tiene permisos configurados. Asignalos desde Privilegios.</li>
+                                    @endforelse
                                 </ul>
                             </div>
                         </div>

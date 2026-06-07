@@ -37,7 +37,8 @@ class RolController extends Controller
 
     public function show($id)
     {
-        $rol = Rol::findOrFail($id);
+        // Cargar todos los permisos por modulo del rol (evita N+1 y lista fija desactualizada)
+        $rol = Rol::with(['permisosModulo' => fn ($q) => $q->orderBy('modulo')])->findOrFail($id);
 
         return view('roles.show', compact('rol'));
     }
