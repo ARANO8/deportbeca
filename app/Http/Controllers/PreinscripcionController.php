@@ -68,7 +68,7 @@ class PreinscripcionController extends Controller
             'disciplina_id' => 'required|integer|exists:disciplines,id',
             'representante_nombre' => 'required|string|max:255',
             'representante_ci' => 'required|string|max:50',
-            'representante_email' => 'required|email|max:255',
+            'representante_email' => 'required|email:rfc,strict|max:255',
             'representante_telefono' => 'required|string|max:30',
             'nombre_equipo' => 'nullable|string|max:255',
             'cantidad_integrantes' => 'nullable|integer|min:1',

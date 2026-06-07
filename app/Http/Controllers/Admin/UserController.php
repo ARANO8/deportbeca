@@ -41,7 +41,7 @@ class UserController extends Controller
     {
         $rules = [
             'name' => 'required|min:3',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email:rfc,strict|unique:users,email',
             'telefono' => 'required',
             'apaterno' => 'required',
             'amaterno' => 'required',
@@ -132,7 +132,7 @@ class UserController extends Controller
     {
         $rules = [
             'name' => 'required|min:3',
-            'email' => 'required|email|unique:users,email,'.$id,
+            'email' => 'required|email:rfc,strict|unique:users,email,'.$id,
             'telefono' => 'required',
             'apaterno' => 'required',
             'amaterno' => 'required',
