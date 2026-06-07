@@ -1,120 +1,116 @@
 @extends('layouts.panel')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Detalle de Disciplina</h3>
-                    <div class="card-tools">
-                        <a href="{{ route('disciplines.edit', $discipline) }}" class="btn btn-warning btn-sm">
-                            <i class="fas fa-edit"></i> Editar
-                        </a>
-                        <a href="{{ route('disciplines.index') }}" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-arrow-left"></i> Volver
-                        </a>
-                    </div>
+<div class="card shadow">
+    <div class="card-header border-0">
+        <div class="row align-items-center">
+            <div class="col">
+                <h3 class="mb-0">
+                    <i class="fas fa-info-circle"></i> Detalles de la Disciplina
+                </h3>
+            </div>
+            <div class="col text-right">
+                <a href="{{ route('disciplines.edit', $discipline->id) }}" class="btn btn-sm btn-warning">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <a href="{{ route('disciplines.index') }}" class="btn btn-sm btn-success">
+                    <i class="fas fa-chevron-left"></i> Regresar
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-bordered">
+                    <tr>
+                        <th width="200">Código:</th>
+                        <td>{{ $discipline->codigo ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Nombre:</th>
+                        <td>{{ $discipline->nombre }}</td>
+                    </tr>
+                    @if($discipline->disciplinaPadre)
+                    <tr>
+                        <th>Disciplina Padre:</th>
+                        <td>{{ $discipline->disciplinaPadre->nombre }}</td>
+                    </tr>
+                    @endif
+                    <tr>
+                        <th>Descripción:</th>
+                        <td>{{ $discipline->descripcion ?? 'Sin descripción' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Estado:</th>
+                        <td>
+                            @if($discipline->status == 'active')
+                                <span class="badge badge-success">Activo</span>
+                            @else
+                                <span class="badge badge-danger">Inactivo</span>
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Fecha de creación:</th>
+                        <td>{{ $discipline->created_at->format('d/m/Y H:i:s') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Última actualización:</th>
+                        <td>{{ $discipline->updated_at->format('d/m/Y H:i:s') }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Mapa de ubicación -->
+        @if($discipline->ubicacion_mapa)
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="alert alert-info">
+                    <strong><i class="fas fa-map-marker-alt"></i> 🗺️ Ubicación del evento:</strong>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <table class="table table-bordered">
-                                <tr>
-                                    <th width="30%">ID:</th>
-                                    <td>{{ $discipline->id }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Código:</th>
-                                    <td>{{ $discipline->codigo }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Código Completo:</th>
-                                    <td><code>{{ $discipline->codigo_completo }}</code></td>
-                                </tr>
-                                <tr>
-                                    <th>Nombre:</th>
-                                    <td>{{ $discipline->nombre }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Descripción:</th>
-                                    <td>{{ $discipline->descripcion ?: 'Sin descripción' }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Tipo:</th>
-                                    <td>
-                                        @if($discipline->parent_id)
-                                            <span class="badge badge-info">Subdisciplina</span>
-                                            <br>
-                                            <small>Disciplina Padre: <strong>{{ $discipline->parent->nombre }}</strong> [{{ $discipline->parent->codigo }}]</small>
-                                        @else
-                                            <span class="badge badge-primary">Disciplina Principal</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Estado:</th>
-                                    <td>
-                                        @if($discipline->status == 'active')
-                                            <span class="badge badge-success">Activo</span>
-                                        @else
-                                            <span class="badge badge-danger">Inactivo</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Fecha Creación:</th>
-                                    <td>{{ $discipline->created_at->format('d/m/Y H:i:s') }}</td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header bg-info text-white">
-                                    <h5 class="card-title mb-0">Subdisciplinas</h5>
-                                </div>
-                                <div class="card-body">
-                                    @if($discipline->subDisciplines->count() > 0)
-                                        <div class="table-responsive">
-                                            <table class="table table-sm table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Código</th>
-                                                        <th>Nombre</th>
-                                                        <th>Estado</th>
-                                                        <th>Acciones</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach($discipline->subDisciplines as $sub)
-                                                    <tr>
-                                                        <td>{{ $sub->codigo }}</td>
-                                                        <td>{{ $sub->nombre }}</td>
-                                                        <td>
-                                                            @if($sub->status == 'active')
-                                                                <span class="badge badge-success">Activo</span>
-                                                            @else
-                                                                <span class="badge badge-danger">Inactivo</span>
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            <a href="{{ route('disciplines.show', $sub) }}" class="btn btn-info btn-xs">Ver</a>
-                                                        </td>
-                                                    </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    @else
-                                        <p class="text-muted text-center">Esta disciplina no tiene subdisciplinas registradas.</p>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="embed-responsive embed-responsive-16by9">
+                    <iframe class="embed-responsive-item" 
+                            src="{{ $discipline->ubicacion_mapa }}" 
+                            style="border:0; border-radius: 10px;" 
+                            allowfullscreen="" loading="lazy">
+                    </iframe>
                 </div>
             </div>
         </div>
+        @else
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    Esta disciplina no tiene una ubicación de mapa configurada.
+                </div>
+            </div>
+        </div>
+        @endif
+        
+        <!-- Subdisciplinas -->
+        @if($discipline->children->count() > 0)
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="alert alert-secondary">
+                    <strong><i class="fas fa-sitemap"></i> Subdisciplinas:</strong>
+                </div>
+                <ul class="list-group">
+                    @foreach($discipline->children as $sub)
+                        <li class="list-group-item">
+                            <i class="fas fa-angle-right"></i> {{ $sub->nombre }}
+                            @if($sub->status == 'inactive')
+                                <span class="badge badge-danger float-right">Inactivo</span>
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 @endsection

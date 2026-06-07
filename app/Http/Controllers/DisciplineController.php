@@ -1,7 +1,5 @@
 <?php
 
-// ✅ ESTO DEBE SER LO PRIMERO, NI ESPACIOS, NI LÍNEAS EN BLANCO
-
 namespace App\Http\Controllers;
 
 use App\Models\Discipline;
@@ -12,124 +10,125 @@ class DisciplineController extends Controller
 {
     public function index(Request $request)
     {
-        $parent_id = $request->get('parent_id');
-
-        // Obtener disciplinas según el filtro
-        $disciplines = Discipline::when($parent_id, function ($query) use ($parent_id) {
-            $query->where('parent_id', $parent_id);
-        })->when(! $parent_id, function ($query) {
-            $query->whereNull('parent_id'); // Solo disciplinas principales
-        })->orderBy('id', 'desc')->paginate(10);
-
-        // ✅ Siempre obtener las disciplinas principales para el filtro (sin importar si hay filtro o no)
-        $mainDisciplines = Discipline::mainDisciplines()->active()->get();
-
-        return view('disciplines.index', compact('disciplines', 'mainDisciplines', 'parent_id'));
+        $search = $request->get('search');
+        $status = $request->get('status');
+        
+        $disciplines = Discipline::with('disciplinaPadre');
+        
+        if ($search) {
+            $disciplines = $disciplines->where('nombre', 'like', "%{$search}%")
+                                       ->orWhere('codigo', 'like', "%{$search}%");
+        }
+        
+        if ($status) {
+            $disciplines = $disciplines->where('status', $status);
+        }
+        
+        $disciplines = $disciplines->orderBy('parent_id')
+                                   ->orderBy('nombre')
+                                   ->paginate(10);
+        
+        return view('disciplines.index', compact('disciplines'));
     }
 
     public function create()
     {
-        $mainDisciplines = Discipline::mainDisciplines()->active()->get();
-
-        return view('disciplines.create', compact('mainDisciplines'));
+        $disciplinasPadre = Discipline::whereNull('parent_id')
+                                     ->where('status', 'active')
+                                     ->orderBy('nombre')
+                                     ->get();
+        
+        return view('disciplines.create', compact('disciplinasPadre'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'codigo' => 'required|string|max:20|unique:disciplines,codigo',
-            'nombre' => 'required|string|max:150',
+            'codigo' => 'nullable|string|max:50|unique:disciplines,codigo',
+            'nombre' => 'required|string|max:100',
             'descripcion' => 'nullable|string',
             'parent_id' => 'nullable|exists:disciplines,id',
             'status' => 'required|in:active,inactive',
+            'ubicacion_mapa' => 'nullable|url',
         ]);
 
         Discipline::create($request->all());
 
-        $tipo = $request->parent_id ? 'Subdisciplina' : 'Disciplina';
-        Session::flash('toastr_success', "✅ {$tipo} creada correctamente.");
-
+        Session::flash('toastr_success', 'Disciplina creada correctamente.');
         return redirect()->route('disciplines.index');
     }
 
-    public function show(Discipline $discipline)
+    public function show($id)
     {
-        // Cargar subdisciplinas y la disciplina padre si existe
-        $discipline->load('subDisciplines', 'disciplinaPadre');
-
+        $discipline = Discipline::with('disciplinaPadre', 'children')->findOrFail($id);
         return view('disciplines.show', compact('discipline'));
     }
 
-    public function edit(Discipline $discipline)
+    public function edit($id)
     {
-        $mainDisciplines = Discipline::mainDisciplines()->active()
-            ->where('id', '!=', $discipline->id) // No puede ser su propio padre
-            ->get();
-
-        return view('disciplines.edit', compact('discipline', 'mainDisciplines'));
+        $discipline = Discipline::findOrFail($id);
+        $disciplinasPadre = Discipline::whereNull('parent_id')
+                                     ->where('id', '!=', $id)
+                                     ->where('status', 'active')
+                                     ->orderBy('nombre')
+                                     ->get();
+        
+        return view('disciplines.edit', compact('discipline', 'disciplinasPadre'));
     }
 
-    public function update(Request $request, Discipline $discipline)
+    public function update(Request $request, $id)
     {
+        $discipline = Discipline::findOrFail($id);
+        
         $request->validate([
-            'codigo' => 'required|string|max:20|unique:disciplines,codigo,'.$discipline->id,
-            'nombre' => 'required|string|max:150',
+            'codigo' => 'nullable|string|max:50|unique:disciplines,codigo,'.$id,
+            'nombre' => 'required|string|max:100',
             'descripcion' => 'nullable|string',
-            'parent_id' => 'nullable|exists:disciplines,id|different:id',
+            'parent_id' => 'nullable|exists:disciplines,id',
             'status' => 'required|in:active,inactive',
+            'ubicacion_mapa' => 'nullable|url',
         ]);
-
-        // Validar que no cree un ciclo
-        if ($request->parent_id && $discipline->subDisciplines()->count() > 0) {
-            Session::flash('toastr_error', '⚠️ No se puede convertir una disciplina que tiene subdisciplinas en subdisciplina.');
-
-            return redirect()->back()->withInput();
-        }
 
         $discipline->update($request->all());
 
-        $tipo = $discipline->parent_id ? 'Subdisciplina' : 'Disciplina';
-        Session::flash('toastr_success', "✅ {$tipo} actualizada correctamente.");
-
+        Session::flash('toastr_success', 'Disciplina actualizada correctamente.');
         return redirect()->route('disciplines.index');
     }
 
-    public function destroy(Discipline $discipline)
+    public function destroy($id)
     {
+        $discipline = Discipline::findOrFail($id);
+        
         // Verificar si tiene subdisciplinas
-        if ($discipline->subDisciplines()->count() > 0) {
-            Session::flash('toastr_error', '⚠️ No se puede eliminar una disciplina que tiene subdisciplinas. Elimine primero las subdisciplinas.');
-
+        if ($discipline->children()->count() > 0) {
+            Session::flash('toastr_error', 'No se puede eliminar una disciplina que tiene subdisciplinas asociadas.');
             return redirect()->route('disciplines.index');
         }
-
-        $tipo = $discipline->parent_id ? 'Subdisciplina' : 'Disciplina';
+        
+        // Verificar si tiene eventos asociados
+        if ($discipline->eventos()->exists()) {
+            Session::flash('toastr_error', 'No se puede eliminar una disciplina que tiene eventos asociados.');
+            return redirect()->route('disciplines.index');
+        }
+        
         $discipline->delete();
-
-        Session::flash('toastr_info', "🗑️ {$tipo} eliminada correctamente.");
-
+        Session::flash('toastr_info', 'Disciplina eliminada correctamente.');
         return redirect()->route('disciplines.index');
     }
-
+    
     public function activo($id)
     {
         $discipline = Discipline::findOrFail($id);
         $discipline->update(['status' => 'active']);
-
-        $tipo = $discipline->parent_id ? 'Subdisciplina' : 'Disciplina';
-        Session::flash('toastr_success', "🟢 {$tipo} activada correctamente.");
-
+        Session::flash('toastr_success', 'Disciplina activada.');
         return redirect()->route('disciplines.index');
     }
-
+    
     public function inactivo($id)
     {
         $discipline = Discipline::findOrFail($id);
         $discipline->update(['status' => 'inactive']);
-
-        $tipo = $discipline->parent_id ? 'Subdisciplina' : 'Disciplina';
-        Session::flash('toastr_info', "🔴 {$tipo} desactivada correctamente.");
-
+        Session::flash('toastr_info', 'Disciplina desactivada.');
         return redirect()->route('disciplines.index');
     }
 }

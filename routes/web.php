@@ -24,18 +24,19 @@ use App\Http\Controllers\WelcomController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
+
 // ==================== RUTAS PÚBLICAS ====================
 Route::get('/', [WelcomController::class, 'index']);
 
 // Rutas de autenticación (equivalente a Auth::routes() sin requerir laravel/ui)
-Route::get('login', [LoginController::class,    'showLoginForm'])->name('login');
-Route::post('login', [LoginController::class,    'login']);
-Route::post('logout', [LoginController::class,    'logout'])->name('logout');
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('login', [LoginController::class, 'login']);
+Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-Route::get('password/reset/{token}', [ResetPasswordController::class,  'showResetForm'])->name('password.reset');
-Route::post('password/reset', [ResetPasswordController::class,  'reset'])->name('password.update');
+Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
@@ -105,13 +106,23 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/perfil', [UserSenttingsController::class, 'actualizarPerfil'])->name('perfil.actualizar');
 });
 
-// ==================== DISCIPLINAS (con autenticacion) ====================
-Route::middleware(['auth', 'permiso:disciplinas,ver'])->group(function () {
-    Route::resource('disciplines', DisciplineController::class);
-    Route::put('disciplines/{id}/activo', [DisciplineController::class, 'activo'])->name('disciplines.activo');
-    Route::put('disciplines/{id}/inactivo', [DisciplineController::class, 'inactivo'])->name('disciplines.inactivo');
+// ==================== DISCIPLINAS CRUD COMPLETO (con autenticacion) ====================
+Route::middleware(['auth', 'permiso:disciplinas,ver'])->prefix('disciplinas')->name('disciplinas.')->group(function () {
+    // Rutas resource
+    Route::get('/', [DisciplineController::class, 'index'])->name('index');
+    Route::get('/create', [DisciplineController::class, 'create'])->name('create');
+    Route::post('/', [DisciplineController::class, 'store'])->name('store');
+    Route::get('/{discipline}', [DisciplineController::class, 'show'])->name('show');
+    Route::get('/{discipline}/edit', [DisciplineController::class, 'edit'])->name('edit');
+    Route::put('/{discipline}', [DisciplineController::class, 'update'])->name('update');
+    Route::delete('/{discipline}', [DisciplineController::class, 'destroy'])->name('destroy');
+    
+    // Rutas adicionales para activar/desactivar
+    Route::patch('/{id}/activo', [DisciplineController::class, 'activo'])->name('activo');
+    Route::patch('/{id}/inactivo', [DisciplineController::class, 'inactivo'])->name('inactivo');
 });
 
+// ==================== ALERTAS ====================
 Route::middleware(['auth'])->group(function () {
     Route::get('/alertas', [AlertaController::class, 'index'])->name('alertas.index');
     Route::post('/alertas/{alerta}/marcar-leida', [AlertaController::class, 'marcarLeida'])->name('alertas.marcar.leida');
@@ -139,20 +150,23 @@ Route::prefix('archivador')->middleware(['auth', 'permiso:preinscripciones,ver']
     Route::get('{id}/historial', [ArchivadorController::class, 'historial'])->name('archivador.historial');
 });
 
-// ==================== ADMIN (USUARIOS, CARRERAS, PAGINAS, LUGARES) ====================
+// ==================== USUARIOS ====================
 Route::middleware(['auth', 'permiso:usuarios,ver'])->group(function () {
     Route::resource('users', UserController::class)->except(['destroy']);
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::patch('/users/{user}/activo', [UserController::class, 'activo'])->name('users.activo');
     Route::patch('/users/{user}/inactivo', [UserController::class, 'inactivo'])->name('users.inactivo');
     Route::resource('paginawebs', PaginaController::class);
 });
 
+// ==================== CARRERAS ====================
 Route::middleware(['auth', 'permiso:carreras,ver'])->group(function () {
     Route::resource('carreras', CarreraController::class);
     Route::patch('/carreras/{id}/activo', [CarreraController::class, 'activo'])->name('carreras.activo');
     Route::patch('/carreras/{id}/inactivo', [CarreraController::class, 'inactivo'])->name('carreras.inactivo');
 });
 
+// ==================== LUGARES ====================
 Route::middleware(['auth', 'permiso:lugares,ver'])->group(function () {
     Route::resource('lugares', LugarController::class)->names([
         'index' => 'admin.lugares.index',
@@ -166,6 +180,8 @@ Route::middleware(['auth', 'permiso:lugares,ver'])->group(function () {
     Route::patch('/lugares/{id}/activo', [LugarController::class, 'activo'])->name('admin.lugares.activo');
     Route::patch('/lugares/{id}/inactivo', [LugarController::class, 'inactivo'])->name('admin.lugares.inactivo');
 });
+
+// ==================== ROLES ====================
 Route::middleware(['auth', 'permiso:roles,ver'])->group(function () {
     Route::get('/roles', [RolController::class, 'index'])->name('roles.index');
     Route::get('/roles/create', [RolController::class, 'create'])->name('roles.create');
@@ -178,22 +194,21 @@ Route::middleware(['auth', 'permiso:roles,ver'])->group(function () {
     Route::patch('/roles/{id}/inactivo', [RolController::class, 'inactivo'])->name('roles.inactivo');
 });
 
-// ============================================
-// RUTAS DE PRIVILEGIOS
-// ============================================
+// ==================== PRIVILEGIOS ====================
 Route::middleware(['auth', 'permiso:privilegios,ver'])->group(function () {
     Route::get('/privilegios', [PrivilegioController::class, 'index'])->name('privilegios.index');
     Route::get('/privilegios/{id}/edit', [PrivilegioController::class, 'edit'])->name('privilegios.edit');
     Route::put('/privilegios/{id}', [PrivilegioController::class, 'update'])->name('privilegios.update');
 });
-// Calificaciones — requiere auth + permiso de ver calificaciones
+
+// ==================== CALIFICACIONES ====================
 Route::middleware(['auth', 'permiso:calificaciones,ver'])->prefix('calificaciones')->name('calificaciones.')->group(function () {
     Route::get('/serie/{serie}', [CalificacionController::class, 'index'])->name('index');
     Route::post('/serie/{serie}/posiciones', [CalificacionController::class, 'guardarPosiciones'])->name('guardar.posiciones');
     Route::post('/partido/{partido}/resultado-grupal', [CalificacionController::class, 'guardarResultadoGrupal'])->name('guardar.resultado.grupal');
 });
-// routes/web.php - Agrega esto dentro del grupo auth
 
+// ==================== FIXTURE ====================
 Route::middleware(['auth', 'permiso:fixture,ver'])->prefix('fixture')->name('fixture.')->group(function () {
     // Flujo principal
     Route::get('/', [FixtureController::class, 'index'])->name('index');
@@ -215,6 +230,7 @@ Route::middleware(['auth', 'permiso:fixture,ver'])->prefix('fixture')->name('fix
     // Siguiente fase eliminatoria
     Route::post('/evento/{evento}/disciplina/{disciplina}/siguiente-fase', [FixtureController::class, 'generarSiguienteFase'])->name('siguiente.fase');
 
+    // JSON para calendario
     Route::get('/evento/{evento}/calendario/json', [FixtureController::class, 'calendarioEventosJson'])->name('calendario.json');
 });
 
@@ -228,3 +244,21 @@ Route::middleware(['auth'])->prefix('exportar')->name('exportar.')->group(functi
     Route::get('/evento/{evento}/fixture/pdf', [ExportController::class, 'fixturePdf'])->name('fixture.pdf');
     Route::get('/serie/{serie}/posiciones/pdf', [ExportController::class, 'tablaPosicionesPdf'])->name('posiciones.pdf');
 });
+
+// ==================== RUTA PARA GENERAR CONTRASEÑA (AJAX) ====================
+Route::get('/generate-password', function () {
+    $letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $numbers = '0123456789';
+    $specialChars = '!@#$%^&*()';
+    
+    $password = $letters[rand(0, strlen($letters) - 1)];
+    $password .= $numbers[rand(0, strlen($numbers) - 1)];
+    $password .= $specialChars[rand(0, strlen($specialChars) - 1)];
+    
+    $allChars = $letters . $numbers . $specialChars;
+    for ($i = 3; $i < 8; $i++) {
+        $password .= $allChars[rand(0, strlen($allChars) - 1)];
+    }
+    
+    return response()->json(['password' => str_shuffle($password)]);
+})->middleware('auth')->name('generate.password');

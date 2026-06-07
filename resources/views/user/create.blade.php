@@ -131,21 +131,18 @@ $generatedPassword = generateRandomPassword(8);
                 </div>
                 
                 <div class="form-group col-md-4">
-                    <label for="role">
+                    <label for="rol_id">
                         <strong><i class="fas fa-user-shield"></i> Rol del usuario</strong>
                     </label>
-                    <select class="form-control text-indigo" id="role" name="role" required>
-                        <option value="admin" {{old('role') == 'admin' ? 'selected' : ''}}>
-                            <i class="fas fa-crown"></i> Admin
-                        </option>
-                        <option value="profe" {{old('role') == 'profe' ? 'selected' : ''}}>
-                            <i class="fas fa-chalkboard-user"></i> Profe
-                        </option>
-                        <option value="invitado" {{old('role') == 'invitado' ? 'selected' : ''}}>
-                            <i class="fas fa-user"></i> Invitado
-                        </option>
+                    <select class="form-control text-indigo" id="rol_id" name="rol_id" required>
+                        <option value="">Seleccione un rol</option>
+                        @foreach($roles as $rol)
+                            <option value="{{ $rol->id }}" {{ old('rol_id') == $rol->id ? 'selected' : '' }}>
+                                {{ $rol->nombre }}
+                            </option>
+                        @endforeach
                     </select>
-                    @error('role')
+                    @error('rol_id')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
