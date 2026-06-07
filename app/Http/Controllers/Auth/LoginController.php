@@ -32,14 +32,10 @@ class LoginController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (! $user) {
+        // Mensaje generico unico para no revelar si el email existe (anti-enumeracion)
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             return back()->withInput($request->only('email', 'remember'))
-                ->withErrors(['email' => 'El usuario no es correcto']);
-        }
-
-        if (! Hash::check($request->password, $user->password)) {
-            return back()->withInput($request->only('email', 'remember'))
-                ->withErrors(['password' => 'Error de autentificación']);
+                ->withErrors(['email' => 'Credenciales invalidas.']);
         }
 
         if (($user->status ?? 'activo') !== 'activo') {

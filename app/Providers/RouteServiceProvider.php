@@ -72,5 +72,13 @@ class RouteServiceProvider extends ServiceProvider
                     ], 429);
                 });
         });
+
+        // S2: limitar intentos de login para mitigar fuerza bruta.
+        // 5 intentos por minuto por combinacion de email + IP.
+        RateLimiter::for('login', function (Request $request) {
+            $email = strtolower((string) $request->input('email'));
+
+            return Limit::perMinute(5)->by($email.'|'.$request->ip());
+        });
     }
 }

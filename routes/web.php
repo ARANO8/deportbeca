@@ -24,13 +24,12 @@ use App\Http\Controllers\WelcomController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
-
 // ==================== RUTAS PÚBLICAS ====================
 Route::get('/', [WelcomController::class, 'index']);
 
 // Rutas de autenticación (equivalente a Auth::routes() sin requerir laravel/ui)
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('login', [LoginController::class, 'login']);
+Route::post('login', [LoginController::class, 'login'])->middleware('throttle:login');
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
@@ -106,23 +105,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/perfil', [UserSenttingsController::class, 'actualizarPerfil'])->name('perfil.actualizar');
 });
 
-// ==================== DISCIPLINAS CRUD COMPLETO (con autenticacion) ====================
-Route::middleware(['auth', 'permiso:disciplinas,ver'])->prefix('disciplinas')->name('disciplinas.')->group(function () {
-    // Rutas resource
-    Route::get('/', [DisciplineController::class, 'index'])->name('index');
-    Route::get('/create', [DisciplineController::class, 'create'])->name('create');
-    Route::post('/', [DisciplineController::class, 'store'])->name('store');
-    Route::get('/{discipline}', [DisciplineController::class, 'show'])->name('show');
-    Route::get('/{discipline}/edit', [DisciplineController::class, 'edit'])->name('edit');
-    Route::put('/{discipline}', [DisciplineController::class, 'update'])->name('update');
-    Route::delete('/{discipline}', [DisciplineController::class, 'destroy'])->name('destroy');
-    
-    // Rutas adicionales para activar/desactivar
-    Route::patch('/{id}/activo', [DisciplineController::class, 'activo'])->name('activo');
-    Route::patch('/{id}/inactivo', [DisciplineController::class, 'inactivo'])->name('inactivo');
-});
-
-// ==================== ALERTAS ====================
+// ==================== ALERTAS (propias del usuario, validadas por user_id en el controlador) ====================
 Route::middleware(['auth'])->group(function () {
     Route::get('/alertas', [AlertaController::class, 'index'])->name('alertas.index');
     Route::post('/alertas/{alerta}/marcar-leida', [AlertaController::class, 'marcarLeida'])->name('alertas.marcar.leida');
@@ -130,108 +113,135 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/alertas/{alerta}', [AlertaController::class, 'destroy'])->name('alertas.destroy');
 });
 
+// ==================== DISCIPLINAS (permiso por accion) ====================
+Route::middleware(['auth'])->prefix('disciplinas')->name('disciplinas.')->group(function () {
+    Route::get('/', [DisciplineController::class, 'index'])->middleware('permiso:disciplinas,ver')->name('index');
+    Route::get('/create', [DisciplineController::class, 'create'])->middleware('permiso:disciplinas,crear')->name('create');
+    Route::post('/', [DisciplineController::class, 'store'])->middleware('permiso:disciplinas,crear')->name('store');
+    Route::get('/{discipline}', [DisciplineController::class, 'show'])->middleware('permiso:disciplinas,ver')->name('show');
+    Route::get('/{discipline}/edit', [DisciplineController::class, 'edit'])->middleware('permiso:disciplinas,editar')->name('edit');
+    Route::put('/{discipline}', [DisciplineController::class, 'update'])->middleware('permiso:disciplinas,editar')->name('update');
+    Route::patch('/{id}/activo', [DisciplineController::class, 'activo'])->middleware('permiso:disciplinas,editar')->name('activo');
+    Route::patch('/{id}/inactivo', [DisciplineController::class, 'inactivo'])->middleware('permiso:disciplinas,editar')->name('inactivo');
+    Route::delete('/{discipline}', [DisciplineController::class, 'destroy'])->middleware('permiso:disciplinas,eliminar')->name('destroy');
+});
+
 // ==================== CONFIGURACIÓN DE EVENTOS (ADMIN) ====================
-Route::prefix('eventos')->middleware(['auth', 'permiso:eventos,ver'])->group(function () {
-    Route::get('/', [EventoConfiguracionController::class, 'index'])->name('eventos.index');
-    Route::get('{tipoEvento}/edit', [EventoConfiguracionController::class, 'edit'])->name('eventos.edit');
-    Route::put('{tipoEvento}', [EventoConfiguracionController::class, 'update'])->name('eventos.update');
+Route::prefix('eventos')->middleware(['auth'])->group(function () {
+    Route::get('/', [EventoConfiguracionController::class, 'index'])->middleware('permiso:eventos,ver')->name('eventos.index');
+    Route::get('{tipoEvento}/edit', [EventoConfiguracionController::class, 'edit'])->middleware('permiso:eventos,editar')->name('eventos.edit');
+    Route::put('{tipoEvento}', [EventoConfiguracionController::class, 'update'])->middleware('permiso:eventos,editar')->name('eventos.update');
 });
 
-// ==================== ARCHIVADOR (GESTIÓN DE EQUIPOS) ====================
-Route::prefix('archivador')->middleware(['auth', 'permiso:preinscripciones,ver'])->group(function () {
-    Route::get('/', [ArchivadorController::class, 'index'])->name('archivador.index');
-    Route::get('{id}/detalle', [ArchivadorController::class, 'show'])->name('archivador.show');
-    Route::match(['GET', 'POST'], '{id}/habilitar', [ArchivadorController::class, 'habilitar'])->name('archivador.habilitar');
-    Route::match(['GET', 'POST'], '{id}/observar', [ArchivadorController::class, 'observar'])->name('archivador.observar');
-    Route::match(['GET', 'POST'], '{id}/revertir', [ArchivadorController::class, 'revertirPendiente'])->name('archivador.revertir');
-    Route::get('{id}/integrante/{integranteId}/{tipo}', [ArchivadorController::class, 'descargarDocumentoIntegrante'])->name('archivador.descargar.integrante');
-    Route::get('{id}/descargar/{tipo}', [ArchivadorController::class, 'descargarDocumento'])->name('archivador.descargar');
-    Route::get('{id}/credencial/pdf', [ArchivadorController::class, 'generarCredencial'])->name('archivador.credencial');
-    Route::get('{id}/historial', [ArchivadorController::class, 'historial'])->name('archivador.historial');
+// ==================== ARCHIVADOR (GESTIÓN DE EQUIPOS / preinscripciones) ====================
+Route::prefix('archivador')->middleware(['auth'])->group(function () {
+    Route::get('/', [ArchivadorController::class, 'index'])->middleware('permiso:preinscripciones,ver')->name('archivador.index');
+    Route::get('{id}/detalle', [ArchivadorController::class, 'show'])->middleware('permiso:preinscripciones,ver')->name('archivador.show');
+    Route::match(['GET', 'POST'], '{id}/habilitar', [ArchivadorController::class, 'habilitar'])->middleware('permiso:preinscripciones,editar')->name('archivador.habilitar');
+    Route::match(['GET', 'POST'], '{id}/observar', [ArchivadorController::class, 'observar'])->middleware('permiso:preinscripciones,editar')->name('archivador.observar');
+    Route::match(['GET', 'POST'], '{id}/revertir', [ArchivadorController::class, 'revertirPendiente'])->middleware('permiso:preinscripciones,editar')->name('archivador.revertir');
+    Route::get('{id}/integrante/{integranteId}/{tipo}', [ArchivadorController::class, 'descargarDocumentoIntegrante'])->middleware('permiso:preinscripciones,ver')->name('archivador.descargar.integrante');
+    Route::get('{id}/descargar/{tipo}', [ArchivadorController::class, 'descargarDocumento'])->middleware('permiso:preinscripciones,ver')->name('archivador.descargar');
+    Route::get('{id}/credencial/pdf', [ArchivadorController::class, 'generarCredencial'])->middleware('permiso:preinscripciones,ver')->name('archivador.credencial');
+    Route::get('{id}/historial', [ArchivadorController::class, 'historial'])->middleware('permiso:preinscripciones,ver')->name('archivador.historial');
 });
 
-// ==================== USUARIOS ====================
-Route::middleware(['auth', 'permiso:usuarios,ver'])->group(function () {
-    Route::resource('users', UserController::class)->except(['destroy']);
-    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-    Route::patch('/users/{user}/activo', [UserController::class, 'activo'])->name('users.activo');
-    Route::patch('/users/{user}/inactivo', [UserController::class, 'inactivo'])->name('users.inactivo');
-    Route::resource('paginawebs', PaginaController::class);
+// ==================== USUARIOS Y COMUNICADOS (modulo usuarios) ====================
+Route::middleware(['auth'])->group(function () {
+    // Usuarios
+    Route::get('/users', [UserController::class, 'index'])->middleware('permiso:usuarios,ver')->name('users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->middleware('permiso:usuarios,crear')->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->middleware('permiso:usuarios,crear')->name('users.store');
+    Route::get('/users/{user}', [UserController::class, 'show'])->middleware('permiso:usuarios,ver')->name('users.show');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->middleware('permiso:usuarios,editar')->name('users.edit');
+    Route::match(['PUT', 'PATCH'], '/users/{user}', [UserController::class, 'update'])->middleware('permiso:usuarios,editar')->name('users.update');
+    Route::patch('/users/{user}/activo', [UserController::class, 'activo'])->middleware('permiso:usuarios,editar')->name('users.activo');
+    Route::patch('/users/{user}/inactivo', [UserController::class, 'inactivo'])->middleware('permiso:usuarios,editar')->name('users.inactivo');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->middleware('permiso:usuarios,eliminar')->name('users.destroy');
+
+    // Comunicados (paginas web)
+    Route::get('/paginawebs', [PaginaController::class, 'index'])->middleware('permiso:usuarios,ver')->name('paginawebs.index');
+    Route::get('/paginawebs/create', [PaginaController::class, 'create'])->middleware('permiso:usuarios,crear')->name('paginawebs.create');
+    Route::post('/paginawebs', [PaginaController::class, 'store'])->middleware('permiso:usuarios,crear')->name('paginawebs.store');
+    Route::get('/paginawebs/{paginaweb}', [PaginaController::class, 'show'])->middleware('permiso:usuarios,ver')->name('paginawebs.show');
+    Route::get('/paginawebs/{paginaweb}/edit', [PaginaController::class, 'edit'])->middleware('permiso:usuarios,editar')->name('paginawebs.edit');
+    Route::match(['PUT', 'PATCH'], '/paginawebs/{paginaweb}', [PaginaController::class, 'update'])->middleware('permiso:usuarios,editar')->name('paginawebs.update');
+    Route::delete('/paginawebs/{paginaweb}', [PaginaController::class, 'destroy'])->middleware('permiso:usuarios,eliminar')->name('paginawebs.destroy');
 });
 
 // ==================== CARRERAS ====================
-Route::middleware(['auth', 'permiso:carreras,ver'])->group(function () {
-    Route::resource('carreras', CarreraController::class);
-    Route::patch('/carreras/{id}/activo', [CarreraController::class, 'activo'])->name('carreras.activo');
-    Route::patch('/carreras/{id}/inactivo', [CarreraController::class, 'inactivo'])->name('carreras.inactivo');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/carreras', [CarreraController::class, 'index'])->middleware('permiso:carreras,ver')->name('carreras.index');
+    Route::get('/carreras/create', [CarreraController::class, 'create'])->middleware('permiso:carreras,crear')->name('carreras.create');
+    Route::post('/carreras', [CarreraController::class, 'store'])->middleware('permiso:carreras,crear')->name('carreras.store');
+    Route::get('/carreras/{carrera}', [CarreraController::class, 'show'])->middleware('permiso:carreras,ver')->name('carreras.show');
+    Route::get('/carreras/{carrera}/edit', [CarreraController::class, 'edit'])->middleware('permiso:carreras,editar')->name('carreras.edit');
+    Route::match(['PUT', 'PATCH'], '/carreras/{carrera}', [CarreraController::class, 'update'])->middleware('permiso:carreras,editar')->name('carreras.update');
+    Route::patch('/carreras/{id}/activo', [CarreraController::class, 'activo'])->middleware('permiso:carreras,editar')->name('carreras.activo');
+    Route::patch('/carreras/{id}/inactivo', [CarreraController::class, 'inactivo'])->middleware('permiso:carreras,editar')->name('carreras.inactivo');
+    Route::delete('/carreras/{carrera}', [CarreraController::class, 'destroy'])->middleware('permiso:carreras,eliminar')->name('carreras.destroy');
 });
 
 // ==================== LUGARES ====================
-Route::middleware(['auth', 'permiso:lugares,ver'])->group(function () {
-    Route::resource('lugares', LugarController::class)->names([
-        'index' => 'admin.lugares.index',
-        'create' => 'admin.lugares.create',
-        'store' => 'admin.lugares.store',
-        'show' => 'admin.lugares.show',
-        'edit' => 'admin.lugares.edit',
-        'update' => 'admin.lugares.update',
-        'destroy' => 'admin.lugares.destroy',
-    ]);
-    Route::patch('/lugares/{id}/activo', [LugarController::class, 'activo'])->name('admin.lugares.activo');
-    Route::patch('/lugares/{id}/inactivo', [LugarController::class, 'inactivo'])->name('admin.lugares.inactivo');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/lugares', [LugarController::class, 'index'])->middleware('permiso:lugares,ver')->name('admin.lugares.index');
+    Route::get('/lugares/create', [LugarController::class, 'create'])->middleware('permiso:lugares,crear')->name('admin.lugares.create');
+    Route::post('/lugares', [LugarController::class, 'store'])->middleware('permiso:lugares,crear')->name('admin.lugares.store');
+    Route::get('/lugares/{lugar}', [LugarController::class, 'show'])->middleware('permiso:lugares,ver')->name('admin.lugares.show');
+    Route::get('/lugares/{lugar}/edit', [LugarController::class, 'edit'])->middleware('permiso:lugares,editar')->name('admin.lugares.edit');
+    Route::match(['PUT', 'PATCH'], '/lugares/{lugar}', [LugarController::class, 'update'])->middleware('permiso:lugares,editar')->name('admin.lugares.update');
+    Route::patch('/lugares/{id}/activo', [LugarController::class, 'activo'])->middleware('permiso:lugares,editar')->name('admin.lugares.activo');
+    Route::patch('/lugares/{id}/inactivo', [LugarController::class, 'inactivo'])->middleware('permiso:lugares,editar')->name('admin.lugares.inactivo');
+    Route::delete('/lugares/{lugar}', [LugarController::class, 'destroy'])->middleware('permiso:lugares,eliminar')->name('admin.lugares.destroy');
 });
 
 // ==================== ROLES ====================
-Route::middleware(['auth', 'permiso:roles,ver'])->group(function () {
-    Route::get('/roles', [RolController::class, 'index'])->name('roles.index');
-    Route::get('/roles/create', [RolController::class, 'create'])->name('roles.create');
-    Route::post('/roles', [RolController::class, 'store'])->name('roles.store');
-    Route::get('/roles/{id}', [RolController::class, 'show'])->name('roles.show');
-    Route::get('/roles/{id}/edit', [RolController::class, 'edit'])->name('roles.edit');
-    Route::put('/roles/{id}', [RolController::class, 'update'])->name('roles.update');
-    Route::delete('/roles/{id}', [RolController::class, 'destroy'])->name('roles.destroy');
-    Route::patch('/roles/{id}/activo', [RolController::class, 'activo'])->name('roles.activo');
-    Route::patch('/roles/{id}/inactivo', [RolController::class, 'inactivo'])->name('roles.inactivo');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/roles', [RolController::class, 'index'])->middleware('permiso:roles,ver')->name('roles.index');
+    Route::get('/roles/create', [RolController::class, 'create'])->middleware('permiso:roles,crear')->name('roles.create');
+    Route::post('/roles', [RolController::class, 'store'])->middleware('permiso:roles,crear')->name('roles.store');
+    Route::get('/roles/{id}', [RolController::class, 'show'])->middleware('permiso:roles,ver')->name('roles.show');
+    Route::get('/roles/{id}/edit', [RolController::class, 'edit'])->middleware('permiso:roles,editar')->name('roles.edit');
+    Route::put('/roles/{id}', [RolController::class, 'update'])->middleware('permiso:roles,editar')->name('roles.update');
+    Route::patch('/roles/{id}/activo', [RolController::class, 'activo'])->middleware('permiso:roles,editar')->name('roles.activo');
+    Route::patch('/roles/{id}/inactivo', [RolController::class, 'inactivo'])->middleware('permiso:roles,editar')->name('roles.inactivo');
+    Route::delete('/roles/{id}', [RolController::class, 'destroy'])->middleware('permiso:roles,eliminar')->name('roles.destroy');
 });
 
 // ==================== PRIVILEGIOS ====================
-Route::middleware(['auth', 'permiso:privilegios,ver'])->group(function () {
-    Route::get('/privilegios', [PrivilegioController::class, 'index'])->name('privilegios.index');
-    Route::get('/privilegios/{id}/edit', [PrivilegioController::class, 'edit'])->name('privilegios.edit');
-    Route::put('/privilegios/{id}', [PrivilegioController::class, 'update'])->name('privilegios.update');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/privilegios', [PrivilegioController::class, 'index'])->middleware('permiso:privilegios,ver')->name('privilegios.index');
+    Route::get('/privilegios/{id}/edit', [PrivilegioController::class, 'edit'])->middleware('permiso:privilegios,editar')->name('privilegios.edit');
+    Route::put('/privilegios/{id}', [PrivilegioController::class, 'update'])->middleware('permiso:privilegios,editar')->name('privilegios.update');
 });
 
 // ==================== CALIFICACIONES ====================
-Route::middleware(['auth', 'permiso:calificaciones,ver'])->prefix('calificaciones')->name('calificaciones.')->group(function () {
-    Route::get('/serie/{serie}', [CalificacionController::class, 'index'])->name('index');
-    Route::post('/serie/{serie}/posiciones', [CalificacionController::class, 'guardarPosiciones'])->name('guardar.posiciones');
-    Route::post('/partido/{partido}/resultado-grupal', [CalificacionController::class, 'guardarResultadoGrupal'])->name('guardar.resultado.grupal');
+Route::middleware(['auth'])->prefix('calificaciones')->name('calificaciones.')->group(function () {
+    Route::get('/serie/{serie}', [CalificacionController::class, 'index'])->middleware('permiso:calificaciones,ver')->name('index');
+    Route::post('/serie/{serie}/posiciones', [CalificacionController::class, 'guardarPosiciones'])->middleware('permiso:calificaciones,editar')->name('guardar.posiciones');
+    Route::post('/partido/{partido}/resultado-grupal', [CalificacionController::class, 'guardarResultadoGrupal'])->middleware('permiso:calificaciones,editar')->name('guardar.resultado.grupal');
 });
 
 // ==================== FIXTURE ====================
-Route::middleware(['auth', 'permiso:fixture,ver'])->prefix('fixture')->name('fixture.')->group(function () {
-    // Flujo principal
-    Route::get('/', [FixtureController::class, 'index'])->name('index');
-    Route::get('/evento/{evento}/disciplinas', [FixtureController::class, 'getDisciplinas'])->name('get.disciplinas');
-    Route::get('/evento/{evento}/disciplina/{disciplina}/participantes', [FixtureController::class, 'participantes'])->name('participantes');
-    Route::post('/evento/{evento}/disciplina/{disciplina}/guardar-participantes', [FixtureController::class, 'guardarParticipantes'])->name('guardar.participantes');
-    Route::get('/evento/{evento}/configurar-series/{disciplina}', [FixtureController::class, 'configurarSeries'])->name('configurar.series');
-    Route::post('/evento/{evento}/generar-fixture', [FixtureController::class, 'generarFixture'])->name('generar');
+Route::middleware(['auth'])->prefix('fixture')->name('fixture.')->group(function () {
+    // Lectura
+    Route::get('/', [FixtureController::class, 'index'])->middleware('permiso:fixture,ver')->name('index');
+    Route::get('/evento/{evento}/disciplinas', [FixtureController::class, 'getDisciplinas'])->middleware('permiso:fixture,ver')->name('get.disciplinas');
+    Route::get('/evento/{evento}/disciplina/{disciplina}/participantes', [FixtureController::class, 'participantes'])->middleware('permiso:fixture,ver')->name('participantes');
+    Route::get('/evento/{evento}/configurar-series/{disciplina}', [FixtureController::class, 'configurarSeries'])->middleware('permiso:fixture,ver')->name('configurar.series');
+    Route::get('/mis-fixtures', [FixtureController::class, 'misFixtures'])->middleware('permiso:fixture,ver')->name('mis.fixtures');
+    Route::get('/serie/{serie}/ver', [FixtureController::class, 'verFixtureSerie'])->middleware('permiso:fixture,ver')->name('ver.serie');
+    Route::get('/evento/{evento}/calendario', [FixtureController::class, 'calendarioEvento'])->middleware('permiso:fixture,ver')->name('calendario');
+    Route::get('/evento/{evento}/imprimir', [FixtureController::class, 'imprimirFixture'])->middleware('permiso:fixture,ver')->name('imprimir');
+    Route::get('/evento/{evento}/calendario/json', [FixtureController::class, 'calendarioEventosJson'])->middleware('permiso:fixture,ver')->name('calendario.json');
 
-    // Mis fixtures
-    Route::get('/mis-fixtures', [FixtureController::class, 'misFixtures'])->name('mis.fixtures');
-    Route::get('/serie/{serie}/ver', [FixtureController::class, 'verFixtureSerie'])->name('ver.serie');
-    Route::get('/evento/{evento}/calendario', [FixtureController::class, 'calendarioEvento'])->name('calendario');
-    Route::get('/evento/{evento}/imprimir', [FixtureController::class, 'imprimirFixture'])->name('imprimir');
+    // Creacion del fixture
+    Route::post('/evento/{evento}/disciplina/{disciplina}/guardar-participantes', [FixtureController::class, 'guardarParticipantes'])->middleware('permiso:fixture,crear')->name('guardar.participantes');
+    Route::post('/evento/{evento}/generar-fixture', [FixtureController::class, 'generarFixture'])->middleware('permiso:fixture,crear')->name('generar');
+    Route::post('/evento/{evento}/disciplina/{disciplina}/siguiente-fase', [FixtureController::class, 'generarSiguienteFase'])->middleware('permiso:fixture,crear')->name('siguiente.fase');
 
-    // Asignaciones
-    Route::post('/partido/{partido}/asignar-lugar', [FixtureController::class, 'asignarLugar'])->name('asignar.lugar');
-
-    // Siguiente fase eliminatoria
-    Route::post('/evento/{evento}/disciplina/{disciplina}/siguiente-fase', [FixtureController::class, 'generarSiguienteFase'])->name('siguiente.fase');
-
-    // JSON para calendario
-    Route::get('/evento/{evento}/calendario/json', [FixtureController::class, 'calendarioEventosJson'])->name('calendario.json');
+    // Edicion (asignaciones sobre partidos)
+    Route::post('/partido/{partido}/asignar-lugar', [FixtureController::class, 'asignarLugar'])->middleware('permiso:fixture,editar')->name('asignar.lugar');
 });
 
 // ==================== EXPORTACIONES (Excel y PDF) ====================
@@ -250,15 +260,15 @@ Route::get('/generate-password', function () {
     $letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $numbers = '0123456789';
     $specialChars = '!@#$%^&*()';
-    
+
     $password = $letters[rand(0, strlen($letters) - 1)];
     $password .= $numbers[rand(0, strlen($numbers) - 1)];
     $password .= $specialChars[rand(0, strlen($specialChars) - 1)];
-    
-    $allChars = $letters . $numbers . $specialChars;
+
+    $allChars = $letters.$numbers.$specialChars;
     for ($i = 3; $i < 8; $i++) {
         $password .= $allChars[rand(0, strlen($allChars) - 1)];
     }
-    
+
     return response()->json(['password' => str_shuffle($password)]);
 })->middleware('auth')->name('generate.password');
