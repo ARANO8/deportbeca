@@ -31,14 +31,14 @@ class CarreraController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'codigo' => 'required|string|max:20|unique:carreras,codigo',
             'nombre' => 'required|string|max:150',
             'facultad_id' => 'required|exists:facultades,id',
             'status' => 'required|in:active,inactive',
         ]);
 
-        Carrera::create($request->all());
+        Carrera::create($validated);
 
         Session::flash('toastr_success', '✅ Carrera creada correctamente.');
 
@@ -59,14 +59,14 @@ class CarreraController extends Controller
 
     public function update(Request $request, Carrera $carrera)
     {
-        $request->validate([
+        $validated = $request->validate([
             'codigo' => 'required|string|max:20|unique:carreras,codigo,'.$carrera->id,
             'nombre' => 'required|string|max:150',
             'facultad_id' => 'required|exists:facultades,id',
             'status' => 'required|in:active,inactive',
         ]);
 
-        $carrera->update($request->all());
+        $carrera->update($validated);
 
         Session::flash('toastr_success', '✅ Carrera actualizada correctamente.');
 

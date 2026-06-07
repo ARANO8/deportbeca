@@ -22,7 +22,7 @@ class LugarController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'codigo' => 'required|string|max:20|unique:lugares,codigo',
             'nombre' => 'required|string|max:150',
             'descripcion' => 'nullable|string',
@@ -31,7 +31,7 @@ class LugarController extends Controller
             'status' => 'required|in:active,inactive',
         ]);
 
-        Lugar::create($request->all());
+        Lugar::create($validated);
 
         Session::flash('toastr_success', 'Lugar creado correctamente.');
 
@@ -56,7 +56,7 @@ class LugarController extends Controller
     {
         $lugar = Lugar::findOrFail($id);
 
-        $request->validate([
+        $validated = $request->validate([
             'codigo' => 'required|string|max:20|unique:lugares,codigo,'.$id,
             'nombre' => 'required|string|max:150',
             'descripcion' => 'nullable|string',
@@ -65,7 +65,7 @@ class LugarController extends Controller
             'status' => 'required|in:active,inactive',
         ]);
 
-        $lugar->update($request->all());
+        $lugar->update($validated);
 
         Session::flash('toastr_success', 'Lugar actualizado correctamente.');
 

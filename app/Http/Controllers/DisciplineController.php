@@ -43,7 +43,7 @@ class DisciplineController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'codigo' => 'nullable|string|max:50|unique:disciplines,codigo',
             'nombre' => 'required|string|max:100',
             'descripcion' => 'nullable|string',
@@ -52,7 +52,7 @@ class DisciplineController extends Controller
             'ubicacion_mapa' => 'nullable|url',
         ]);
 
-        Discipline::create($request->all());
+        Discipline::create($validated);
 
         Session::flash('toastr_success', 'Disciplina creada correctamente.');
 
@@ -82,7 +82,7 @@ class DisciplineController extends Controller
     {
         $discipline = Discipline::findOrFail($id);
 
-        $request->validate([
+        $validated = $request->validate([
             'codigo' => 'nullable|string|max:50|unique:disciplines,codigo,'.$id,
             'nombre' => 'required|string|max:100',
             'descripcion' => 'nullable|string',
@@ -91,7 +91,7 @@ class DisciplineController extends Controller
             'ubicacion_mapa' => 'nullable|url',
         ]);
 
-        $discipline->update($request->all());
+        $discipline->update($validated);
 
         Session::flash('toastr_success', 'Disciplina actualizada correctamente.');
 

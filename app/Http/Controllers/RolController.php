@@ -22,13 +22,13 @@ class RolController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'nombre' => 'required|string|max:50|unique:roles,nombre',
             'descripcion' => 'nullable|string|max:255',
             'status' => 'required|in:active,inactive',
         ]);
 
-        Rol::create($request->all());
+        Rol::create($validated);
 
         Session::flash('toastr_success', 'Rol creado correctamente.');
 
@@ -53,13 +53,13 @@ class RolController extends Controller
     {
         $rol = Rol::findOrFail($id);
 
-        $request->validate([
+        $validated = $request->validate([
             'nombre' => 'required|string|max:50|unique:roles,nombre,'.$id,
             'descripcion' => 'nullable|string|max:255',
             'status' => 'required|in:active,inactive',
         ]);
 
-        $rol->update($request->all());
+        $rol->update($validated);
 
         Session::flash('toastr_success', 'Rol actualizado correctamente.');
 
