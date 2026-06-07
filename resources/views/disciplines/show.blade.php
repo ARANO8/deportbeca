@@ -10,10 +10,10 @@
                 </h3>
             </div>
             <div class="col text-right">
-                <a href="{{ route('disciplines.edit', $discipline->id) }}" class="btn btn-sm btn-warning">
+                <a href="{{ route('disciplinas.edit', $discipline->id) }}" class="btn btn-sm btn-warning">
                     <i class="fas fa-edit"></i> Editar
                 </a>
-                <a href="{{ route('disciplines.index') }}" class="btn btn-sm btn-success">
+                <a href="{{ route('disciplinas.index') }}" class="btn btn-sm btn-success">
                     <i class="fas fa-chevron-left"></i> Regresar
                 </a>
             </div>

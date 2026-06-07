@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Discipline extends Model
 {
@@ -12,10 +12,10 @@ class Discipline extends Model
     protected $table = 'disciplines';
 
     protected $fillable = [
-        'codigo', 
-        'nombre', 
-        'descripcion', 
-        'parent_id', 
+        'codigo',
+        'nombre',
+        'descripcion',
+        'parent_id',
         'status',
         'ubicacion_mapa', // Agregado el campo del mapa
     ];
@@ -50,14 +50,25 @@ class Discipline extends Model
         return $query->where('status', 'active');
     }
 
+    // Eventos que tienen habilitada esta disciplina (via tabla junction)
+    public function eventos()
+    {
+        return $this->belongsToMany(
+            EventoConfiguracion::class,
+            'evento_configuracion_disciplinas',
+            'discipline_id',
+            'evento_configuracion_id'
+        );
+    }
+
     // ========== NUEVOS MÉTODOS PARA EL MAPA ==========
-    
+
     /**
      * Verifica si la disciplina tiene un mapa configurado
      */
     public function tieneMapa()
     {
-        return !empty($this->ubicacion_mapa);
+        return ! empty($this->ubicacion_mapa);
     }
 
     /**
@@ -68,6 +79,7 @@ class Discipline extends Model
         if ($this->tieneMapa()) {
             return $this->ubicacion_mapa;
         }
+
         return null;
     }
 
@@ -76,13 +88,13 @@ class Discipline extends Model
      */
     public function getMapaEmbedHtml($width = '100%', $height = 350)
     {
-        if (!$this->tieneMapa()) {
+        if (! $this->tieneMapa()) {
             return '<div class="alert alert-warning">No hay mapa configurado para esta disciplina.</div>';
         }
 
-        return '<iframe src="' . $this->ubicacion_mapa . '" 
-                        width="' . $width . '" 
-                        height="' . $height . '" 
+        return '<iframe src="'.$this->ubicacion_mapa.'" 
+                        width="'.$width.'" 
+                        height="'.$height.'" 
                         style="border:0; border-radius: 10px;" 
                         allowfullscreen="" 
                         loading="lazy">
@@ -95,8 +107,9 @@ class Discipline extends Model
     public function getNombreCompletoAttribute()
     {
         if ($this->disciplinaPadre) {
-            return $this->disciplinaPadre->nombre . ' - ' . $this->nombre;
+            return $this->disciplinaPadre->nombre.' - '.$this->nombre;
         }
+
         return $this->nombre;
     }
 
@@ -107,18 +120,18 @@ class Discipline extends Model
     {
         $disciplinas = self::with('disciplinaPadre')->get();
         $options = [];
-        
+
         foreach ($disciplinas as $disciplina) {
             if ($disciplina->parent_id === null) {
                 $options[$disciplina->id] = $disciplina->nombre;
                 foreach ($disciplinas as $sub) {
                     if ($sub->parent_id === $disciplina->id) {
-                        $options[$sub->id] = '  └─ ' . $sub->nombre;
+                        $options[$sub->id] = '  └─ '.$sub->nombre;
                     }
                 }
             }
         }
-        
+
         return $options;
     }
 }

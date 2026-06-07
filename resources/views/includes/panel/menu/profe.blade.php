@@ -30,8 +30,8 @@
     </a>
 </li>
 
-<li class="nav-item {{ $r->routeIs('disciplines.*') ? 'active' : '' }}">
-    <a class="nav-link {{ $r->routeIs('disciplines.*') ? 'active' : '' }}" href="{{ route('disciplines.index') }}">
+<li class="nav-item {{ $r->routeIs('disciplinas.*') ? 'active' : '' }}">
+    <a class="nav-link {{ $r->routeIs('disciplinas.*') ? 'active' : '' }}" href="{{ route('disciplinas.index') }}">
         <i class="fas fa-futbol"></i><strong>Disciplinas</strong>
     </a>
 </li>

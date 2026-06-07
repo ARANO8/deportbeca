@@ -10,7 +10,7 @@
                 </h3>
             </div>
             <div class="col text-right">
-                <a href="{{ route('disciplines.create') }}" class="btn btn-sm btn-primary">
+                <a href="{{ route('disciplinas.create') }}" class="btn btn-sm btn-primary">
                     <i class="fas fa-plus"></i> Nueva Disciplina
                 </a>
             </div>
@@ -18,7 +18,7 @@
     </div>
     
     <div class="card-body">
-        <form method="GET" action="{{ route('disciplines.index') }}" class="mb-3">
+        <form method="GET" action="{{ route('disciplinas.index') }}" class="mb-3">
             <div class="row">
                 <div class="col-md-4">
                     <input type="text" name="search" class="form-control" 
@@ -34,7 +34,7 @@
                 </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-primary">Filtrar</button>
-                    <a href="{{ route('disciplines.index') }}" class="btn btn-secondary">Limpiar</a>
+                    <a href="{{ route('disciplinas.index') }}" class="btn btn-secondary">Limpiar</a>
                 </div>
             </div>
         </form>
@@ -81,22 +81,30 @@
                     </td>
                     <td>{{ $discipline->created_at->format('d/m/Y') }}</td>
                     <td>
-                        <a href="{{ route('disciplines.show', $discipline->id) }}" class="btn btn-sm btn-info" title="Ver">
+                        <a href="{{ route('disciplinas.show', $discipline->id) }}" class="btn btn-sm btn-info" title="Ver">
                             <i class="fas fa-eye"></i>
                         </a>
-                        <a href="{{ route('disciplines.edit', $discipline->id) }}" class="btn btn-sm btn-warning" title="Editar">
+                        <a href="{{ route('disciplinas.edit', $discipline->id) }}" class="btn btn-sm btn-warning" title="Editar">
                             <i class="fas fa-edit"></i>
                         </a>
                         @if($discipline->status == 'active')
-                            <a href="{{ url('/disciplines/inactivo/'.$discipline->id) }}" class="btn btn-sm btn-secondary" title="Desactivar" onclick="return confirm('¿Desactivar esta disciplina?')">
-                                <i class="fas fa-ban"></i>
-                            </a>
+                            <form action="{{ route('disciplinas.inactivo', $discipline->id) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('¿Desactivar esta disciplina?')">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="btn btn-sm btn-secondary" title="Desactivar">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                            </form>
                         @else
-                            <a href="{{ url('/disciplines/activo/'.$discipline->id) }}" class="btn btn-sm btn-success" title="Activar" onclick="return confirm('¿Activar esta disciplina?')">
-                                <i class="fas fa-check"></i>
-                            </a>
+                            <form action="{{ route('disciplinas.activo', $discipline->id) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('¿Activar esta disciplina?')">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="btn btn-sm btn-success" title="Activar">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </form>
                         @endif
-                        <form action="{{ route('disciplines.destroy', $discipline->id) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('¿Eliminar esta disciplina?')">
+                        <form action="{{ route('disciplinas.destroy', $discipline->id) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('¿Eliminar esta disciplina?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">

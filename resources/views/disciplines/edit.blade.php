@@ -10,7 +10,7 @@
                 </h3>
             </div>
             <div class="col text-right">
-                <a href="{{ route('disciplines.index') }}" class="btn btn-sm btn-success">
+                <a href="{{ route('disciplinas.index') }}" class="btn btn-sm btn-success">
                     <i class="fas fa-chevron-left"></i> Regresar
                 </a>
             </div>
@@ -18,7 +18,7 @@
     </div>
     
     <div class="card-body">
-        <form action="{{ route('disciplines.update', $discipline->id) }}" method="POST">
+        <form action="{{ route('disciplinas.update', $discipline->id) }}" method="POST">
             @csrf
             @method('PUT')
             
@@ -124,7 +124,7 @@
                 <button type="submit" class="btn btn-sm btn-primary">
                     <i class="fas fa-save"></i> Actualizar Disciplina
                 </button>
-                <a href="{{ route('disciplines.index') }}" class="btn btn-sm btn-secondary">
+                <a href="{{ route('disciplinas.index') }}" class="btn btn-sm btn-secondary">
                     <i class="fas fa-times"></i> Cancelar
                 </a>
             </div>
