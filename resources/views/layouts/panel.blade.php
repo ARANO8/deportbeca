@@ -217,6 +217,26 @@
   };
 </script>
 
+{{-- Interceptor global: muestra un toast ante respuestas 403 (sin permiso) en peticiones fetch --}}
+<script>
+  (function () {
+    var _fetch = window.fetch;
+    if (!_fetch) { return; }
+    window.fetch = function () {
+      return _fetch.apply(this, arguments).then(function (response) {
+        if (response && response.status === 403 && typeof toastr !== 'undefined') {
+          response.clone().json().then(function (d) {
+            toastr.error((d && d.message) ? d.message : 'No tienes permiso para realizar esta accion.');
+          }).catch(function () {
+            toastr.error('No tienes permiso para realizar esta accion.');
+          });
+        }
+        return response;
+      });
+    };
+  })();
+</script>
+
 {{-- Mobile sidebar toggle --}}
 <script>
   document.addEventListener('DOMContentLoaded', function () {
