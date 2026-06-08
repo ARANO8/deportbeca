@@ -39,12 +39,17 @@
                                 </td>
                                 <td>
                                     <div class="btn-group">
+                                        @puede('roles','ver')
                                         <a href="{{ route('roles.show', $rol->id) }}" class="btn btn-info btn-sm" title="Ver Rol">
                                             <i class="fas fa-eye"></i>
                                         </a>
+                                        @endpuede
+                                        @puede('privilegios','editar')
                                         <a href="{{ route('privilegios.edit', $rol->id) }}" class="btn btn-warning btn-sm" title="Configurar Permisos">
                                             <i class="fas fa-lock"></i>
                                         </a>
+                                        @endpuede
+                                        @puede('roles','editar')
                                         @if($rol->status == 'active')
                                             <form action="{{ route('roles.inactivo', $rol->id) }}" method="POST" style="display:inline" onsubmit="return confirm('¿Desactivar este rol?')">
                                                 @csrf @method('PATCH')
@@ -56,6 +61,8 @@
                                                 <button class="btn btn-success btn-sm" title="Activar Rol"><i class="fas fa-check"></i></button>
                                             </form>
                                         @endif
+                                        @endpuede
+                                        @puede('roles','eliminar')
                                         <form action="{{ route('roles.destroy', $rol->id) }}" method="POST" style="display:inline">
                                             @csrf
                                             @method('DELETE')
@@ -63,6 +70,7 @@
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
+                                        @endpuede
                                     </div>
                                 </td>
                             </tr>

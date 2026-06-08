@@ -8,9 +8,11 @@
                 <div class="card-header">
                     <h3 class="card-title">Detalles del Lugar</h3>
                     <div class="card-tools">
+                        @puede('lugares','editar')
                         <a href="{{ route('admin.lugares.edit', $lugar->id) }}" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Editar
                         </a>
+                        @endpuede
                         <a href="{{ route('admin.lugares.index') }}" class="btn btn-secondary btn-sm">
                             <i class="fas fa-arrow-left"></i> Volver
                         </a>

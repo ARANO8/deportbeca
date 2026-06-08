@@ -123,9 +123,11 @@
                 </div>
                 @endforeach
                 <div class="text-center mt-4">
+                    @puede('fixture','crear')
                     <button type="submit" class="btn btn-success-gradient px-5" id="submitBtn" disabled>
                         <i class="fas fa-arrow-right mr-2"></i>Continuar
                     </button>
+                    @endpuede
                 </div>
             </form>
         </div>

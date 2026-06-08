@@ -324,10 +324,12 @@
                     <input type="date" name="fecha_siguiente_fase" class="form-control form-control-sm" style="width:180px;">
                 </div>
                 <div class="col-auto">
+                    @puede('fixture','crear')
                     <button type="submit" class="btn btn-danger rounded-pill px-4"
                             onclick="return confirm('¿Confirmar generación de la siguiente fase?')">
                         <i class="fas fa-play mr-1"></i> Generar Siguiente Fase
                     </button>
+                    @endpuede
                 </div>
             </div>
         </form>

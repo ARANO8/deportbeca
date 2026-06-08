@@ -88,7 +88,7 @@
     <div class="row">
         @forelse($eventos as $evento)
         <div class="col-xl-4 col-md-6 mb-4">
-            <div class="event-card" onclick="verDisciplinas({{ $evento->id }}, '{{ addslashes($evento->nombre) }}')">
+            <div class="event-card" @puede('fixture','crear')onclick="verDisciplinas({{ $evento->id }}, '{{ addslashes($evento->nombre) }}')"@endpuede>
                 <div class="p-4">
                     <div class="d-flex align-items-center mb-3">
                         <div class="event-icon mr-3">
@@ -113,9 +113,13 @@
                         </div>
                     </div>
                     
+                    @puede('fixture','crear')
                     <button class="btn btn-gradient btn-block">
                         <i class="fas fa-arrow-right mr-2"></i>Generar Fixture
                     </button>
+                    @else
+                    <span class="badge badge-info">Solo lectura</span>
+                    @endpuede
                 </div>
             </div>
         </div>

@@ -201,6 +201,7 @@
         
         <div class="card-footer py-2">
             <div class="d-flex flex-wrap gap-2">
+                @puede('preinscripciones','editar')
                 @if($preinscripcion->estado == 'pendiente')
                     <button class="btn btn-success btn-sm" onclick="confirmar('habilitar', {{ $preinscripcion->id }})">Habilitar</button>
                     <button class="btn btn-warning btn-sm" onclick="observar({{ $preinscripcion->id }})">Observar</button>
@@ -210,6 +211,7 @@
                 @elseif($preinscripcion->estado == 'habilitado')
                     <button class="btn btn-warning btn-sm" onclick="observar({{ $preinscripcion->id }})">Observar</button>
                 @endif
+                @endpuede
                 @if($preinscripcion->estado === 'habilitado')
                 <a href="{{ route('archivador.credencial', $preinscripcion->id) }}"
                    class="btn btn-sm btn-success">

@@ -8,9 +8,11 @@
                 <div class="card-header">
                     <h3 class="card-title">Detalles del Rol</h3>
                     <div class="card-tools">
+                        @puede('roles','editar')
                         <a href="{{ route('roles.edit', $rol->id) }}" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Editar
                         </a>
+                        @endpuede
 
                         <a href="{{ route('roles.index') }}" class="btn btn-secondary btn-sm">
                             <i class="fas fa-arrow-left"></i> Volver

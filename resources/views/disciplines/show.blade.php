@@ -10,9 +10,11 @@
                 </h3>
             </div>
             <div class="col text-right">
+                @puede('disciplinas','editar')
                 <a href="{{ route('disciplinas.edit', $discipline->id) }}" class="btn btn-sm btn-warning">
                     <i class="fas fa-edit"></i> Editar
                 </a>
+                @endpuede
                 <a href="{{ route('disciplinas.index') }}" class="btn btn-sm btn-success">
                     <i class="fas fa-chevron-left"></i> Regresar
                 </a>

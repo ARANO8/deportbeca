@@ -159,9 +159,11 @@
                 <div id="seriesContainer"></div>
                 
                 <div class="text-center mt-4 pt-3 border-top">
+                    @puede('fixture','crear')
                     <button type="submit" class="btn btn-generate btn-lg text-white">
                         <i class="fas fa-magic mr-2"></i>Generar Fixture
                     </button>
+                    @endpuede
                     <a href="{{ route('fixture.index') }}" class="btn btn-secondary btn-lg ml-3">
                         <i class="fas fa-times mr-2"></i>Cancelar
                     </a>
