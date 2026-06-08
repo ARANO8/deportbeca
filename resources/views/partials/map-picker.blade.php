@@ -30,12 +30,6 @@
 <input type="hidden" name="{{ $latField }}" id="{{ $id }}_lat" value="{{ old($latField, $lat) }}">
 <input type="hidden" name="{{ $lngField }}" id="{{ $id }}_lng" value="{{ old($lngField, $lng) }}">
 
-<div class="mt-2 text-right">
-    <button type="button" id="{{ $id }}_gmaps" class="btn btn-sm btn-outline-danger" disabled>
-        <i class="fas fa-map-marker-alt"></i> Abrir con Google Maps
-    </button>
-</div>
-
 <script>
 (function () {
     function initPicker() {
@@ -51,19 +45,6 @@
             attribution: '&copy; OpenStreetMap', maxZoom: 19
         }).addTo(map);
 
-        var gmapsBtn = document.getElementById('{{ $id }}_gmaps');
-        function actualizarGmaps() {
-            if (!gmapsBtn) { return; }
-            gmapsBtn.disabled = ! (latInput.value !== '' && lngInput.value !== '');
-        }
-        if (gmapsBtn) {
-            gmapsBtn.addEventListener('click', function () {
-                if (latInput.value !== '' && lngInput.value !== '') {
-                    window.open('https://www.google.com/maps/search/?api=1&query=' + latInput.value + ',' + lngInput.value, '_blank', 'noopener');
-                }
-            });
-        }
-
         var marker = null;
         function setMarker(lat, lng) {
             if (marker) {
@@ -74,15 +55,12 @@
                     var p = e.target.getLatLng();
                     latInput.value = p.lat.toFixed(7);
                     lngInput.value = p.lng.toFixed(7);
-                    actualizarGmaps();
                 });
             }
             latInput.value = lat.toFixed(7);
             lngInput.value = lng.toFixed(7);
-            actualizarGmaps();
         }
         if (hasCoords) { setMarker(startLat, startLng); }
-        actualizarGmaps();
 
         map.on('click', function (e) { setMarker(e.latlng.lat, e.latlng.lng); });
 
