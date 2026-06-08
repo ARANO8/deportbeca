@@ -89,6 +89,51 @@
             </div>
             
             <div class="form-group">
+                <label class="mb-1"><strong><i class="fas fa-users"></i> Limites de integrantes por modalidad</strong></label>
+                <small class="form-text text-muted mb-2">Deja vacios los campos de una modalidad si la disciplina no se ofrece de esa forma. El maximo puede quedar vacio si no hay tope oficial.</small>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card border mb-2">
+                            <div class="card-body py-2">
+                                <p class="mb-2"><i class="fas fa-users"></i> <strong>Grupal (equipo)</strong></p>
+                                <div class="form-row">
+                                    <div class="form-group col-6 mb-0">
+                                        <label for="min_integrantes_grupal">Minimo</label>
+                                        <input type="number" min="1" max="99" name="min_integrantes_grupal" id="min_integrantes_grupal" class="form-control" value="{{ old('min_integrantes_grupal') }}" placeholder="Ej: 6">
+                                        @error('min_integrantes_grupal')<small class="text-danger">{{ $message }}</small>@enderror
+                                    </div>
+                                    <div class="form-group col-6 mb-0">
+                                        <label for="max_integrantes_grupal">Maximo</label>
+                                        <input type="number" min="1" max="99" name="max_integrantes_grupal" id="max_integrantes_grupal" class="form-control" value="{{ old('max_integrantes_grupal') }}" placeholder="Ej: 12">
+                                        @error('max_integrantes_grupal')<small class="text-danger">{{ $message }}</small>@enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border mb-2">
+                            <div class="card-body py-2">
+                                <p class="mb-2"><i class="fas fa-user"></i> <strong>Individual (representantes)</strong></p>
+                                <div class="form-row">
+                                    <div class="form-group col-6 mb-0">
+                                        <label for="min_integrantes_individual">Minimo</label>
+                                        <input type="number" min="1" max="99" name="min_integrantes_individual" id="min_integrantes_individual" class="form-control" value="{{ old('min_integrantes_individual') }}" placeholder="Ej: 1">
+                                        @error('min_integrantes_individual')<small class="text-danger">{{ $message }}</small>@enderror
+                                    </div>
+                                    <div class="form-group col-6 mb-0">
+                                        <label for="max_integrantes_individual">Maximo</label>
+                                        <input type="number" min="1" max="99" name="max_integrantes_individual" id="max_integrantes_individual" class="form-control" value="{{ old('max_integrantes_individual') }}" placeholder="Ej: 2">
+                                        @error('max_integrantes_individual')<small class="text-danger">{{ $message }}</small>@enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label><strong><i class="fas fa-map-marker-alt"></i> Ubicacion en el mapa</strong></label>
                 @include('partials.map-picker', ['id' => 'mapDisciplina', 'latField' => 'latitud', 'lngField' => 'longitud', 'lat' => null, 'lng' => null])
             </div>

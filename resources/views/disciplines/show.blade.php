@@ -53,6 +53,30 @@
                         </td>
                     </tr>
                     <tr>
+                        <th>Integrantes por modalidad:</th>
+                        <td>
+                            @php
+                                $fmtRango = function ($min, $max) {
+                                    if (is_null($min) && is_null($max)) {
+                                        return null;
+                                    }
+
+                                    return ($min ?? 1).' a '.($max ?? 'sin tope').' integrantes';
+                                };
+                            @endphp
+                            @if($discipline->tieneRango('grupal') || $discipline->tieneRango('individual'))
+                                @if($discipline->tieneRango('grupal'))
+                                    <div><span class="badge badge-info">Grupal</span> {{ $fmtRango($discipline->min_integrantes_grupal, $discipline->max_integrantes_grupal) }}</div>
+                                @endif
+                                @if($discipline->tieneRango('individual'))
+                                    <div><span class="badge badge-info">Individual</span> {{ $fmtRango($discipline->min_integrantes_individual, $discipline->max_integrantes_individual) }}</div>
+                                @endif
+                            @else
+                                <span class="text-muted">Sin limites configurados (se permite cualquier cantidad)</span>
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
                         <th>Fecha de creación:</th>
                         <td>{{ $discipline->created_at->format('d/m/Y H:i:s') }}</td>
                     </tr>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Discipline;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
 
 class DisciplineController extends Controller
 {
@@ -43,15 +44,7 @@ class DisciplineController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'codigo' => 'nullable|string|max:50|unique:disciplines,codigo',
-            'nombre' => 'required|string|max:100',
-            'descripcion' => 'nullable|string',
-            'parent_id' => 'nullable|exists:disciplines,id',
-            'status' => 'required|in:active,inactive',
-            'latitud' => 'nullable|numeric|between:-90,90',
-            'longitud' => 'nullable|numeric|between:-180,180',
-        ]);
+        $validated = $this->datosValidados($request);
 
         Discipline::create($validated);
 
@@ -83,21 +76,47 @@ class DisciplineController extends Controller
     {
         $discipline = Discipline::findOrFail($id);
 
-        $validated = $request->validate([
-            'codigo' => 'nullable|string|max:50|unique:disciplines,codigo,'.$id,
-            'nombre' => 'required|string|max:100',
-            'descripcion' => 'nullable|string',
-            'parent_id' => 'nullable|exists:disciplines,id',
-            'status' => 'required|in:active,inactive',
-            'latitud' => 'nullable|numeric|between:-90,90',
-            'longitud' => 'nullable|numeric|between:-180,180',
-        ]);
+        $validated = $this->datosValidados($request, (int) $id);
 
         $discipline->update($validated);
 
         Session::flash('toastr_success', 'Disciplina actualizada correctamente.');
 
         return redirect()->route('disciplinas.index');
+    }
+
+    /**
+     * Reglas compartidas para crear/editar disciplinas, incluyendo los limites
+     * de integrantes por modalidad (grupal/individual). Valida ademas que el
+     * maximo no sea menor que el minimo dentro de cada modalidad.
+     */
+    private function datosValidados(Request $request, ?int $id = null): array
+    {
+        $validator = Validator::make($request->all(), [
+            'codigo' => 'nullable|string|max:50|unique:disciplines,codigo'.($id ? ','.$id : ''),
+            'nombre' => 'required|string|max:100',
+            'descripcion' => 'nullable|string',
+            'parent_id' => 'nullable|exists:disciplines,id',
+            'status' => 'required|in:active,inactive',
+            'latitud' => 'nullable|numeric|between:-90,90',
+            'longitud' => 'nullable|numeric|between:-180,180',
+            'min_integrantes_grupal' => 'nullable|integer|min:1|max:99',
+            'max_integrantes_grupal' => 'nullable|integer|min:1|max:99',
+            'min_integrantes_individual' => 'nullable|integer|min:1|max:99',
+            'max_integrantes_individual' => 'nullable|integer|min:1|max:99',
+        ]);
+
+        $validator->after(function ($v) use ($request) {
+            foreach (['grupal', 'individual'] as $mod) {
+                $min = $request->input("min_integrantes_{$mod}");
+                $max = $request->input("max_integrantes_{$mod}");
+                if (! is_null($min) && ! is_null($max) && (int) $max < (int) $min) {
+                    $v->errors()->add("max_integrantes_{$mod}", 'El maximo debe ser mayor o igual al minimo de esa modalidad.');
+                }
+            }
+        });
+
+        return $validator->validate();
     }
 
     public function destroy($id)
