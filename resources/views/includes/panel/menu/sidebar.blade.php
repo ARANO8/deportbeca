@@ -1,107 +1,118 @@
-{{--
-    Menu lateral unico dirigido por permisos.
-    Cada item se muestra solo si el rol tiene permiso de "ver" en el modulo
-    correspondiente (coincide 1:1 con el middleware permiso:<modulo>,ver de la ruta).
-    El super administrador ve todos los items automaticamente (puede() => true).
---}}
-@php $r = request(); @endphp
+@php
+$menuKey = auth()->user()->menuKey();
+@endphp
 
-{{-- Dashboard: visible para cualquier usuario autenticado --}}
-<li class="nav-item {{ $r->routeIs('home') || $r->is('*/home') ? 'active' : '' }}">
-    <a class="nav-link {{ $r->routeIs('home') || $r->is('*/home') ? 'active' : '' }}" href="{{ url('/home') }}">
-        <i class="ni ni-tv-2"></i><strong>Dashboard</strong>
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('home') }}">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Dashboard</span>
     </a>
 </li>
 
-@puede('usuarios','ver')
-<li class="nav-item {{ $r->is('*/users*') ? 'active' : '' }}">
-    <a class="nav-link {{ $r->is('*/users*') ? 'active' : '' }}" href="{{ url('/users') }}">
-        <i class="ni ni-single-02"></i><strong>Usuarios</strong>
+@if(auth()->user()->esSuperAdmin() || auth()->user()->rol?->tienePermiso('usuarios', 'ver'))
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('users.index') }}">
+        <i class="fas fa-users"></i>
+        <span>Usuarios</span>
     </a>
 </li>
-@endpuede
+@endif
 
-<<<<<<< Updated upstream:resources/views/includes/panel/menu/sidebar.blade.php
-@puede('disciplinas','ver')
-<li class="nav-item {{ $r->routeIs('disciplinas.*') ? 'active' : '' }}">
-    <a class="nav-link {{ $r->routeIs('disciplinas.*') ? 'active' : '' }}" href="{{ route('disciplinas.index') }}">
-        <i class="fas fa-futbol"></i><strong>Disciplinas</strong>
-=======
+@if(auth()->user()->esSuperAdmin() || auth()->user()->rol?->tienePermiso('disciplinas', 'ver'))
 <li class="nav-item">
     <a class="nav-link" href="{{ route('disciplinas.index') }}">
         <i class="fas fa-futbol"></i>
         <span>Disciplinas</span>
->>>>>>> Stashed changes:resources/views/includes/panel/menu/admin.blade.php
     </a>
 </li>
-@endpuede
+@endif
 
-@puede('carreras','ver')
-<li class="nav-item {{ $r->routeIs('carreras.*') ? 'active' : '' }}">
-    <a class="nav-link {{ $r->routeIs('carreras.*') ? 'active' : '' }}" href="{{ route('carreras.index') }}">
-        <i class="fas fa-graduation-cap"></i><strong>Carreras</strong>
+@if(auth()->user()->esSuperAdmin() || auth()->user()->rol?->tienePermiso('carreras', 'ver'))
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('carreras.index') }}">
+        <i class="fas fa-graduation-cap"></i>
+        <span>Carreras</span>
     </a>
 </li>
-@endpuede
+@endif
 
-@puede('eventos','ver')
-<li class="nav-item {{ $r->routeIs('eventos.*') ? 'active' : '' }}">
-    <a class="nav-link {{ $r->routeIs('eventos.*') ? 'active' : '' }}" href="{{ route('eventos.index') }}">
-        <i class="fas fa-calendar-alt"></i><strong>Eventos</strong>
+@if(auth()->user()->esSuperAdmin() || auth()->user()->rol?->tienePermiso('eventos', 'ver'))
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('eventos.index') }}">
+        <i class="fas fa-calendar-alt"></i>
+        <span>Eventos</span>
     </a>
 </li>
-@endpuede
+@endif
 
-@puede('preinscripciones','ver')
-<li class="nav-item {{ $r->routeIs('archivador.*') ? 'active' : '' }}">
-    <a class="nav-link {{ $r->routeIs('archivador.*') ? 'active' : '' }}" href="{{ route('archivador.index') }}">
-        <i class="fas fa-archive"></i><strong>Inscripcion de Equipos</strong>
+@if(auth()->user()->esSuperAdmin() || auth()->user()->rol?->tienePermiso('preinscripciones', 'ver'))
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('archivador.index') }}">
+        <i class="fas fa-clipboard-list"></i>
+        <span>Inscripción de Equipos</span>
     </a>
 </li>
-@endpuede
+@endif
 
-@puede('lugares','ver')
-<li class="nav-item {{ $r->routeIs('admin.lugares.*') ? 'active' : '' }}">
-    <a class="nav-link {{ $r->routeIs('admin.lugares.*') ? 'active' : '' }}" href="{{ route('admin.lugares.index') }}">
-        <i class="fas fa-map-marker-alt"></i><strong>Lugares</strong>
+@if(auth()->user()->esSuperAdmin() || auth()->user()->rol?->tienePermiso('lugares', 'ver'))
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('admin.lugares.index') }}">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>Lugares</span>
     </a>
 </li>
-@endpuede
+@endif
 
-@puede('fixture','ver')
-<li class="nav-item {{ $r->routeIs('fixture.*') && !$r->routeIs('fixture.mis.*') && !$r->routeIs('fixture.calendario') ? 'active' : '' }}">
-    <a class="nav-link {{ $r->routeIs('fixture.*') && !$r->routeIs('fixture.mis.*') && !$r->routeIs('fixture.calendario') ? 'active' : '' }}" href="{{ route('fixture.index') }}">
-        <i class="fas fa-table"></i><strong>Fixture</strong>
+@if(auth()->user()->esSuperAdmin() || auth()->user()->rol?->tienePermiso('fixture', 'ver'))
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('fixture.index') }}">
+        <i class="fas fa-chart-line"></i>
+        <span>Fixture</span>
     </a>
 </li>
+@endif
 
-<li class="nav-item {{ $r->routeIs('fixture.mis.*') || $r->routeIs('fixture.calendario') ? 'active' : '' }}">
-    <a class="nav-link {{ $r->routeIs('fixture.mis.*') || $r->routeIs('fixture.calendario') ? 'active' : '' }}" href="{{ route('fixture.mis.fixtures') }}">
-        <i class="fas fa-layer-group"></i><strong>Mis Fixture</strong>
+@if(auth()->user()->esSuperAdmin() || auth()->user()->rol?->tienePermiso('fixture', 'ver'))
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('fixture.mis.fixtures') }}">
+        <i class="fas fa-calendar-week"></i>
+        <span>Mis Fixture</span>
     </a>
 </li>
-@endpuede
+@endif
 
-@puede('roles','ver')
-<li class="nav-item {{ $r->routeIs('roles.*') ? 'active' : '' }}">
-    <a class="nav-link {{ $r->routeIs('roles.*') ? 'active' : '' }}" href="{{ route('roles.index') }}">
-        <i class="fas fa-tag"></i><strong>Roles</strong>
+@if(auth()->user()->esSuperAdmin() || auth()->user()->rol?->tienePermiso('roles', 'ver'))
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('roles.index') }}">
+        <i class="fas fa-user-shield"></i>
+        <span>Roles</span>
     </a>
 </li>
-@endpuede
+@endif
 
-@puede('privilegios','ver')
-<li class="nav-item {{ $r->routeIs('privilegios.*') ? 'active' : '' }}">
-    <a class="nav-link {{ $r->routeIs('privilegios.*') ? 'active' : '' }}" href="{{ route('privilegios.index') }}">
-        <i class="fas fa-lock"></i><strong>Privilegios</strong>
+@if(auth()->user()->esSuperAdmin() || auth()->user()->rol?->tienePermiso('privilegios', 'ver'))
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('privilegios.index') }}">
+        <i class="fas fa-lock"></i>
+        <span>Privilegios</span>
     </a>
 </li>
-@endpuede
+@endif
 
-@puede('usuarios','ver')
-<li class="nav-item {{ $r->is('*/paginawebs*') ? 'active' : '' }}">
-    <a class="nav-link {{ $r->is('*/paginawebs*') ? 'active' : '' }}" href="{{ url('/paginawebs') }}">
-        <i class="ni ni-ungroup"></i><strong>panel comunicados</strong>
+@if(auth()->user()->esSuperAdmin() || auth()->user()->rol?->tienePermiso('comunicados', 'ver'))
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('paginawebs.index') }}">
+        <i class="fas fa-newspaper"></i>
+        <span>Panel Comunicados</span>
     </a>
 </li>
-@endpuede
+@endif
+
+<hr class="my-3">
+
+<li class="nav-item">
+    <a class="nav-link" href="#" id="darkModeToggle">
+        <i class="fas fa-moon"></i>
+        <span>Modo oscuro</span>
+    </a>
+</li>
