@@ -131,25 +131,20 @@ class EventoConfiguracion extends Model
     }
 
     /**
-     * Verifica si el evento esta dentro del rango de fechas vigente.
+     * Indica si el evento acepta preinscripciones.
+     *
+     * La fecha de inicio NO restringe: se permite preinscribir antes de que el
+     * evento comience (equipos que se anticipan). Solo la fecha de fin limita:
+     * no se aceptan inscripciones una vez terminado el evento. Se permite durante
+     * todo el ultimo dia (hasta el final de fecha_fin).
      */
     public function estaVigente(): bool
     {
-        $hoy = now();
-
-        if (! $this->fecha_inicio && ! $this->fecha_fin) {
+        if (! $this->fecha_fin) {
             return true;
         }
 
-        if ($this->fecha_inicio && ! $this->fecha_fin) {
-            return $hoy >= $this->fecha_inicio;
-        }
-
-        if ($this->fecha_inicio && $this->fecha_fin) {
-            return $hoy >= $this->fecha_inicio && $hoy <= $this->fecha_fin;
-        }
-
-        return false;
+        return now()->startOfDay()->lte($this->fecha_fin);
     }
 
     public function inscripcionesActuales(): int

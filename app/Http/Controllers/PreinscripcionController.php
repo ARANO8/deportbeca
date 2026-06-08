@@ -26,7 +26,7 @@ class PreinscripcionController extends Controller
         }
 
         if (! $evento->estaVigente()) {
-            return response()->json(['success' => false, 'message' => '❌ Evento no vigente']);
+            return response()->json(['success' => false, 'message' => 'El plazo de inscripcion para este evento ya finalizo.']);
         }
 
         session(['evento_activo_id' => $evento->id]);
