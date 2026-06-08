@@ -1,6 +1,5 @@
 @extends('layouts.panel')
 
-@if(auth()->user()->esSuperAdmin())
 @section('content')
 
 <div class="card shadow">
@@ -39,30 +38,29 @@
                             <label class="form-label">
                                 <i class="fas fa-search"></i> <strong>Buscar</strong>
                             </label>
-                            <input class="form-control" type="search" placeholder="Buscar por nombre o ID..." id="search" 
+                            <input class="form-control" type="search" placeholder="Buscar por nombre o ID..." id="search"
                                    value="{{(isset($_GET['search']))?$_GET['search']:''}}">
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <div class="col">
                 <h3 class="mb-0">
                     <i class="fas fa-newspaper text-primary"></i> Publicaciones
                 </h3>
             </div>
-            
-            @if($role=='admin' || $role=='secretaria')
+
+            @puede('usuarios','crear')
             <div class="col text-right">
                 <a href="{{url('/paginawebs/create')}}" class="btn btn-sm btn-primary">
                     <i class="fas fa-plus"></i> Nueva publicación
                 </a>
             </div>
-            @endif
+            @endpuede
         </div>
     </div>
-    
-    @if($role=='admin' || $role=='secretaria')
+
     <div class="table-responsive">
         <table class="table align-items-center table-flush text-center">
             <thead class="thead-light">
@@ -85,8 +83,8 @@
                 <tr>
                     <td class="font-weight-bold">{{$valor++}}</td>
                     <td>
-                        <img src="{{asset('imagen/'.$paginas->imagen)}}" 
-                             style="max-height: 80px; width: auto; cursor: pointer; border-radius: 10px;" 
+                        <img src="{{asset('imagen/'.$paginas->imagen)}}"
+                             style="max-height: 80px; width: auto; cursor: pointer; border-radius: 10px;"
                              class="img-thumbnail img-hover"
                              onclick="openImageModal('{{ asset('imagen/'.$paginas->imagen) }}')"
                              title="Haz clic para ampliar">
@@ -98,39 +96,37 @@
                             @else
                                 N/A
                             @endif
-                        
+
                     </td>
                     <td>
                         <div class="btn-group" role="group">
-                            @if($role=='admin')
-                                <a href="{{url('/paginawebs/'.Crypt::encrypt($paginas->id).'/edit')}}" 
-                                   class="btn btn-sm btn-primary" title="Editar publicación">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button type="button" class="btn btn-sm btn-danger" title="Eliminar publicación"
-                                        onclick="confirmDelete({{$paginas->id}}, '{{ addslashes($paginas->nombre) }}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                                <a href="{{url('/paginawebs/'.Crypt::encrypt($paginas->id))}}" 
-                                   class="btn btn-sm btn-info" title="Ver detalles">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <form id="delete-form-{{$paginas->id}}" action="{{url('/paginawebs/'.$paginas->id)}}" method="POST" style="display: none;">
-                                    @csrf
-                                    @method('DELETE')
-                                </form>
-                            @endif
-                            @if($role=='secretaria')
-                                <a href="{{url('/paginawebs/'.Crypt::encrypt($paginas->id))}}" 
-                                   class="btn btn-sm btn-info" title="Ver detalles">
-                                    <i class="fas fa-eye"></i> Ver
-                                </a>
-                            @endif
+                            @puede('usuarios','ver')
+                            <a href="{{url('/paginawebs/'.Crypt::encrypt($paginas->id))}}"
+                               class="btn btn-sm btn-info" title="Ver detalles">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            @endpuede
+                            @puede('usuarios','editar')
+                            <a href="{{url('/paginawebs/'.Crypt::encrypt($paginas->id).'/edit')}}"
+                               class="btn btn-sm btn-primary" title="Editar publicación">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            @endpuede
+                            @puede('usuarios','eliminar')
+                            <button type="button" class="btn btn-sm btn-danger" title="Eliminar publicación"
+                                    onclick="confirmDelete({{$paginas->id}}, '{{ addslashes($paginas->nombre) }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <form id="delete-form-{{$paginas->id}}" action="{{url('/paginawebs/'.$paginas->id)}}" method="POST" style="display: none;">
+                                @csrf
+                                @method('DELETE')
+                            </form>
+                            @endpuede
                         </div>
                     </td>
                 </tr>
                 @endforeach
-                
+
                 @if($pagina->isEmpty())
                 <tr>
                     <td colspan="5" class="text-center text-muted py-5">
@@ -142,7 +138,6 @@
             </tbody>
         </table>
     </div>
-    @endif
 
     <div class="card-body pagination justify-content-end">
         @if($pagina->total() > 10)
@@ -193,86 +188,58 @@
 
 @endsection
 
-@else
-
-@section('content')
-
-<div class="card shadow">
-    <div class="card-header border-0">
-        <div class="row align-items-center">
-            <div class="col">
-                <h3 class="mb-0">
-                    <i class="fas fa-lock text-danger"></i> Acceso Denegado
-                </h3>
-            </div>
-        </div>
-    </div>
-    <div class="card-body text-center py-5">
-        <i class="fas fa-ban fa-4x text-danger mb-3 d-block"></i>
-        <h1 class="text-danger">ACCESO NO AUTORIZADO</h1>
-        <p class="text-muted mb-4">Usted no tiene permisos para acceder a esta sección.</p>
-        <a href="{{url('/home')}}" class="btn btn-success btn-lg">
-            <i class="fas fa-home"></i> Volver al Inicio
-        </a>
-    </div>
-</div>
-
-@endsection
-
-@endif
-
 @section('scripts')
 <script>
     $(document).ready(function() {
         // Animación de entrada
         $('.card').hide().fadeIn(400);
-        
+
         // Filtro de límite
         $('#limit').on('change', function(){
             window.location.href = "{{ route('paginawebs.index') }}?limit=" + $(this).val() + '&search=' + $('#search').val();
         });
-        
+
         // Búsqueda con Enter
         $('#search').on('keyup', function(e){
             if(e.keyCode == 13){
                 window.location.href = "{{ route('paginawebs.index') }}?limit=" + $('#limit').val() + '&search=' + $(this).val();
             }
         });
-        
+
         // Mostrar notificaciones Toastr
         @if(session('toastr_success'))
             toastr.success("{{ session('toastr_success') }}");
         @endif
-        
+
         @if(session('toastr_error'))
             toastr.error("{{ session('toastr_error') }}");
         @endif
-        
+
         @if(session('toastr_warning'))
             toastr.warning("{{ session('toastr_warning') }}");
         @endif
-        
+
         @if(session('toastr_info'))
             toastr.info("{{ session('toastr_info') }}");
         @endif
-        
+
         // Compatibilidad con notificaciones antiguas
         @if(session('notification'))
             toastr.success("{{ session('notification') }}");
         @endif
-        
+
         @if(session('notifications'))
             toastr.error("{{ session('notifications') }}");
         @endif
     });
-    
+
     // Función para abrir el modal con la imagen
     function openImageModal(imageUrl) {
         document.getElementById('modalImage').src = imageUrl;
         document.getElementById('downloadImage').href = imageUrl;
         $('#imageModal').modal('show');
     }
-    
+
     // Función para confirmar eliminación
     function confirmDelete(id, nombre) {
         Swal.fire({

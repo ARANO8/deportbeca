@@ -1,6 +1,5 @@
 @extends('layouts.panel')
 
-@if($role=='admin' || $role=='profe')
 @section('content')
 
 <div class="card shadow">
@@ -25,25 +24,24 @@
             @csrf
             @method('PUT')
             
-            @if(auth()->user()->esSuperAdmin())
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label for="nombre">
                         <strong><i class="fas fa-bullhorn"></i> Titulo</strong>
                     </label>
-                    <input type="text" name="nombre" class="form-control" 
+                    <input type="text" name="nombre" class="form-control"
                            value="{{old('nombre', $pagina->nombre)}}" placeholder="Ingrese el título del comunicado" required>
                     @error('nombre')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
-                
+
                 <div class="form-group col-md-6">
                     <label for="imagen">
                         <strong><i class="fas fa-image"></i> Elija la imagen del publicacion</strong>
                     </label>
                     <div class="custom-file">
-                        <input type="file" name="imagen" id="imagen" class="custom-file-input" 
+                        <input type="file" name="imagen" id="imagen" class="custom-file-input"
                                accept="image/png, image/jpeg, image/jpg, image/gif">
                         <label class="custom-file-label" for="imagen">Seleccionar archivo</label>
                     </div>
@@ -53,27 +51,27 @@
                     @enderror
                 </div>
             </div>
-            
+
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label for="descripcion">
                         <strong><i class="fas fa-align-left"></i> Descripción de la publicacion</strong>
                     </label>
-                    <textarea name="descripcion" id="descripcion" class="form-control" rows="10" 
+                    <textarea name="descripcion" id="descripcion" class="form-control" rows="10"
                               placeholder="Ingrese la descripción del comunicado..." required>{{old('descripcion', $pagina->descripcion)}}</textarea>
                     @error('descripcion')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
-                
+
                 <div class="form-group col-md-6">
                     <label>
                         <strong><i class="fas fa-eye"></i> Vista previa de la imagen</strong>
                     </label>
                     <div class="text-center border rounded p-3 bg-light">
-                        <img src="{{ asset('imagen/' . $pagina->imagen) }}" 
-                             id="imagenSeleccionada" 
-                             class="img-fluid rounded" 
+                        <img src="{{ asset('imagen/' . $pagina->imagen) }}"
+                             id="imagenSeleccionada"
+                             class="img-fluid rounded"
                              style="max-height: 250px; width: auto; cursor: pointer;"
                              onclick="openImageModal('{{ asset('imagen/' . $pagina->imagen) }}')"
                              alt="Vista previa de la imagen">
@@ -81,43 +79,6 @@
                     <small class="text-muted">Haz clic en la imagen para ampliarla</small>
                 </div>
             </div>
-            
-            
-            @else
-            <div class="form-row">
-                <div class="form-group col-md-12">
-                    <label for="imagen">
-                        <strong><i class="fas fa-image"></i> Elija la imagen del comunicado</strong>
-                    </label>
-                    <div class="custom-file">
-                        <input type="file" name="imagen" id="imagen" class="custom-file-input" 
-                               accept="image/png, image/jpeg, image/jpg, image/gif">
-                        <label class="custom-file-label" for="imagen">Seleccionar archivo</label>
-                    </div>
-                    <small class="text-muted">Formatos permitidos: PNG, JPEG, JPG, GIF. Máximo 2MB</small>
-                    @error('imagen')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group col-md-12">
-                    <label>
-                        <strong><i class="fas fa-eye"></i> Vista previa de la imagen</strong>
-                    </label>
-                    <div class="text-center border rounded p-3 bg-light">
-                        <img src="{{ asset('imagen/' . $pagina->imagen) }}" 
-                             id="imagenSeleccionada" 
-                             class="img-fluid rounded" 
-                             style="max-height: 250px; width: auto; cursor: pointer;"
-                             onclick="openImageModal('{{ asset('imagen/' . $pagina->imagen) }}')"
-                             alt="Vista previa de la imagen">
-                    </div>
-                    <small class="text-muted">Haz clic en la imagen para ampliarla</small>
-                </div>
-            </div>
-            @endif
             
             <hr>
             
@@ -174,34 +135,6 @@
 </style>
 
 @endsection
-
-@else
-
-@section('content')
-
-<div class="card shadow">
-    <div class="card-header border-0">
-        <div class="row align-items-center">
-            <div class="col">
-                <h3 class="mb-0">
-                    <i class="fas fa-lock text-danger"></i> Acceso Denegado
-                </h3>
-            </div>
-        </div>
-    </div>
-    <div class="card-body text-center py-5">
-        <i class="fas fa-ban fa-4x text-danger mb-3 d-block"></i>
-        <h1 class="text-danger">ACCESO NO AUTORIZADO</h1>
-        <p class="text-muted mb-4">Usted no tiene permisos para acceder a esta sección.</p>
-        <a href="{{url('/home')}}" class="btn btn-success btn-lg">
-            <i class="fas fa-home"></i> Volver al Inicio
-        </a>
-    </div>
-</div>
-
-@endsection
-
-@endif
 
 @section('scripts')
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>

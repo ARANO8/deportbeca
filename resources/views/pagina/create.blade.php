@@ -1,7 +1,6 @@
 <?php use Illuminate\Support\Str; ?>
 @extends('layouts.panel')
 
-@if(auth()->user()->esSuperAdmin())
 @section('content')
 
 <div class="card shadow">
@@ -178,34 +177,6 @@
 </style>
 
 @endsection
-
-@else
-
-@section('content')
-
-<div class="card shadow">
-    <div class="card-header border-0">
-        <div class="row align-items-center">
-            <div class="col">
-                <h3 class="mb-0">
-                    <i class="fas fa-lock text-danger"></i> Acceso Denegado
-                </h3>
-            </div>
-        </div>
-    </div>
-    <div class="card-body text-center py-5">
-        <i class="fas fa-ban fa-4x text-danger mb-3 d-block"></i>
-        <h1 class="text-danger">ACCESO NO AUTORIZADO</h1>
-        <p class="text-muted mb-4">Usted no tiene permisos para acceder a esta sección.</p>
-        <a href="{{url('/home')}}" class="btn btn-success btn-lg">
-            <i class="fas fa-home"></i> Volver al Inicio
-        </a>
-    </div>
-</div>
-
-@endsection
-
-@endif
 
 @section('scripts')
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
