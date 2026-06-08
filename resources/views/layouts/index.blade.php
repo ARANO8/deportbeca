@@ -1441,48 +1441,71 @@ function cargarFormularioPreinscripcion(evento) {
 }
 
 function inicializarEventosFormulario(evento) {
-    function handleTipoChange() {
-        var tipoSelect = document.getElementById('tipo_inscripcion_select');
-        var seccionGrupal = document.getElementById('seccionGrupal');
-        var seccionIndividual = document.getElementById('seccionIndividual');
-        var integrantesContainer = document.getElementById('integrantesContainer');
-        var hiddenInput = document.getElementById('tipo_inscripcion_hidden');
-        var facultadGrupal = document.getElementById('facultadGrupal');
-        var nombreEquipo = document.querySelector('input[name="nombre_equipo"]');
-        var carreraSelect = document.querySelector('select[name="carrera_id"]');
-        if (!tipoSelect) return;
-        if (tipoSelect.value === 'individual') {
-            if (seccionGrupal) seccionGrupal.style.display = 'none';
-            if (integrantesContainer) integrantesContainer.style.display = 'none';
-            if (facultadGrupal) facultadGrupal.style.display = 'none';
-            if (seccionIndividual) seccionIndividual.style.display = 'block';
-            if (hiddenInput) hiddenInput.value = 'individual';
-            if (nombreEquipo) nombreEquipo.required = false;
-            if (carreraSelect) carreraSelect.required = false;
-        } else {
-            if (seccionGrupal) seccionGrupal.style.display = 'block';
-            if (integrantesContainer) integrantesContainer.style.display = 'block';
-            if (facultadGrupal) facultadGrupal.style.display = 'block';
-            if (seccionIndividual) seccionIndividual.style.display = 'none';
-            if (hiddenInput) hiddenInput.value = 'grupal';
-            if (nombreEquipo) nombreEquipo.required = true;
-            if (carreraSelect) carreraSelect.required = true;
-            generarIntegrantes();
+    var form = document.getElementById('preinscripcionForm');
+    if (!form) return;
+
+    var tipoSelect = document.getElementById('tipo_inscripcion_select');
+    var disciplinaSelect = form.querySelector('select[name="disciplina_id"]');
+    var hiddenInput = document.getElementById('tipo_inscripcion_hidden');
+    var cantidadWrap = document.getElementById('cantidadWrap');
+    var cantidadInput = document.getElementById('cantidadIntegrantes');
+    var cantidadLabel = document.getElementById('cantidadLabel');
+    var cantidadHint = document.getElementById('cantidadHint');
+    var seccionGrupal = document.getElementById('seccionGrupal');
+    var seccionPrincipal = document.getElementById('seccionPrincipal');
+    var integrantesContainer = document.getElementById('integrantesContainer');
+    var tituloPrincipal = document.getElementById('tituloPrincipal');
+    var btnEnviar = document.getElementById('btnEnviarPre');
+    var avalWrap = document.getElementById('avalWrap');
+    var facultadWrap = document.getElementById('facultadWrap');
+    var carreraWrap = document.getElementById('carreraWrap');
+
+    function opcionDisciplina() {
+        var opt = (disciplinaSelect && disciplinaSelect.selectedOptions) ? disciplinaSelect.selectedOptions[0] : null;
+        return (opt && opt.value) ? opt : null;
+    }
+
+    function aplicarModalidades() {
+        var opt = opcionDisciplina();
+        var permiteGrupal = opt ? opt.dataset.permiteGrupal === '1' : true;
+        var permiteIndividual = opt ? opt.dataset.permiteIndividual === '1' : true;
+        var optG = tipoSelect.querySelector('option[value="grupal"]');
+        var optI = tipoSelect.querySelector('option[value="individual"]');
+        if (optG) { optG.disabled = !permiteGrupal; optG.hidden = !permiteGrupal; }
+        if (optI) { optI.disabled = !permiteIndividual; optI.hidden = !permiteIndividual; }
+        if (tipoSelect.value === 'grupal' && !permiteGrupal) tipoSelect.value = permiteIndividual ? 'individual' : '';
+        if (tipoSelect.value === 'individual' && !permiteIndividual) tipoSelect.value = permiteGrupal ? 'grupal' : '';
+        // Si la disciplina solo admite una modalidad, autoseleccionarla
+        if (!tipoSelect.value && opt) {
+            if (permiteGrupal && !permiteIndividual) tipoSelect.value = 'grupal';
+            else if (permiteIndividual && !permiteGrupal) tipoSelect.value = 'individual';
         }
     }
 
-    function generarIntegrantes() {
-        var cantidad = parseInt(document.getElementById('cantidadIntegrantes')?.value) || 2;
-        var container = document.getElementById('integrantesContainer');
-        if (!container) return;
-        container.innerHTML = '';
+    function rangoActual() {
+        var opt = opcionDisciplina();
+        var modalidad = tipoSelect.value;
+        if (!opt || !modalidad) return null;
+        var min = parseInt(opt.dataset[modalidad + 'Min'], 10);
+        var max = parseInt(opt.dataset[modalidad + 'Max'], 10);
+        if (isNaN(min) || min < 1) min = 1;
+        if (isNaN(max) || max < min) max = min;
+        return { min: min, max: max };
+    }
+
+    function generarPersonas() {
+        if (!integrantesContainer) return;
+        var modalidad = tipoSelect.value;
+        var cantidad = parseInt(cantidadInput.value, 10) || 1;
+        var etiqueta = modalidad === 'individual' ? 'Representante' : 'Integrante';
+        integrantesContainer.innerHTML = '';
         for (var i = 2; i <= cantidad; i++) {
-            container.innerHTML += '<div class="card mt-3 p-3" style="background:var(--bg-card);border:1px solid var(--border);">'
-                + '<strong class="text-white mb-2 d-block"><i class="fas fa-user"></i> INTEGRANTE ' + i + '</strong>'
+            integrantesContainer.innerHTML += '<div class="card mt-3 p-3" style="background:var(--bg-card);border:1px solid var(--border);">'
+                + '<strong class="text-white mb-2 d-block"><i class="fas fa-user"></i> ' + etiqueta.toUpperCase() + ' ' + i + '</strong>'
                 + '<div class="row"><div class="col-md-6 mb-2"><input type="text" name="integrantes[' + i + '][nombre]" class="form-control integrante-input" placeholder="Nombre completo"></div>'
                 + '<div class="col-md-6 mb-2"><input type="text" name="integrantes[' + i + '][ci]" class="form-control integrante-input" placeholder="Cedula de Identidad"></div></div>'
                 + '<hr style="border-color:var(--border);">'
-                + '<h6 class="text-white">Documentos del Integrante ' + i + '</h6>'
+                + '<h6 class="text-white">Documentos de ' + etiqueta + ' ' + i + '</h6>'
                 + '<div class="row"><div class="col-md-4 mb-2"><label class="text-white small">Cedula *</label>'
                 + '<input type="file" name="integrantes[' + i + '][documento_ci]" class="form-control integrante-file" accept=".jpg,.jpeg,.png,.pdf"></div>'
                 + '<div class="col-md-4 mb-2"><label class="text-white small">Seguro *</label>'
@@ -1490,51 +1513,113 @@ function inicializarEventosFormulario(evento) {
                 + '<div class="col-md-4 mb-2"><label class="text-white small">Matricula *</label>'
                 + '<input type="file" name="integrantes[' + i + '][documento_matricula]" class="form-control integrante-file" accept=".jpg,.jpeg,.png,.pdf"></div></div></div>';
         }
-        var tipoSelect = document.getElementById('tipo_inscripcion_select');
-        document.querySelectorAll('.integrante-input, .integrante-file').forEach(function(el) {
-            el.required = tipoSelect?.value === 'grupal';
-        });
+        integrantesContainer.querySelectorAll('.integrante-input, .integrante-file').forEach(function(el) { el.required = true; });
     }
 
-    var tipoSelect = document.getElementById('tipo_inscripcion_select');
-    var cantidadInput = document.getElementById('cantidadIntegrantes');
-    if (tipoSelect) {
-        tipoSelect.removeEventListener('change', handleTipoChange);
-        tipoSelect.addEventListener('change', handleTipoChange);
-        setTimeout(handleTipoChange, 100);
+    function setReq(selector, val) {
+        var el = form.querySelector(selector);
+        if (el) el.required = val;
     }
+
+    function configurar() {
+        aplicarModalidades();
+        var opt = opcionDisciplina();
+        var modalidad = tipoSelect.value;
+        var activo = !!(opt && modalidad);
+
+        if (avalWrap) avalWrap.style.display = activo ? 'block' : 'none';
+        if (seccionPrincipal) seccionPrincipal.style.display = activo ? 'block' : 'none';
+        if (cantidadWrap) cantidadWrap.style.display = activo ? 'block' : 'none';
+        if (facultadWrap) facultadWrap.style.display = activo ? 'block' : 'none';
+        if (carreraWrap) carreraWrap.style.display = activo ? 'block' : 'none';
+        if (seccionGrupal) seccionGrupal.style.display = (activo && modalidad === 'grupal') ? 'block' : 'none';
+        if (hiddenInput) hiddenInput.value = modalidad || '';
+        if (btnEnviar) btnEnviar.disabled = !activo;
+
+        setReq('[name="representante_nombre"]', activo);
+        setReq('[name="representante_ci"]', activo);
+        setReq('[name="representante_email"]', activo);
+        setReq('[name="representante_telefono"]', activo);
+        setReq('[name="documento_ci_capitan"]', activo);
+        setReq('[name="documento_seguro_capitan"]', activo);
+        setReq('[name="documento_matricula_capitan"]', activo);
+        setReq('[name="documento_aval"]', activo);
+        setReq('[name="nombre_equipo"]', activo && modalidad === 'grupal');
+        var facSel = document.getElementById('facultadInscripcion');
+        if (facSel) facSel.required = activo;
+        var carSel = document.getElementById('carreraInscripcion');
+        if (carSel) carSel.required = activo;
+
+        if (tituloPrincipal) tituloPrincipal.textContent = modalidad === 'individual' ? 'Representante 1' : 'Capitan del equipo';
+
+        if (!activo) {
+            if (integrantesContainer) integrantesContainer.innerHTML = '';
+            return;
+        }
+
+        var r = rangoActual();
+        if (!r) return;
+        cantidadInput.min = r.min;
+        cantidadInput.max = r.max;
+        var val = parseInt(cantidadInput.value, 10);
+        if (isNaN(val) || val < r.min || val > r.max) val = r.min;
+        cantidadInput.value = val;
+
+        var sustantivo = modalidad === 'individual' ? 'representantes' : 'integrantes';
+        if (r.min === r.max) {
+            cantidadInput.readOnly = true;
+            cantidadLabel.textContent = 'Cantidad de ' + sustantivo + ' (fijo: ' + r.min + ')';
+            cantidadHint.textContent = 'Esta disciplina requiere exactamente ' + r.min + ' ' + sustantivo + '.';
+        } else {
+            cantidadInput.readOnly = false;
+            cantidadLabel.textContent = 'Cantidad de ' + sustantivo + ' *';
+            cantidadHint.textContent = 'Puede registrar entre ' + r.min + ' y ' + r.max + ' ' + sustantivo + ' (incluye al principal).';
+        }
+        generarPersonas();
+    }
+
+    if (disciplinaSelect) disciplinaSelect.addEventListener('change', configurar);
+    if (tipoSelect) tipoSelect.addEventListener('change', configurar);
     if (cantidadInput) {
-        cantidadInput.removeEventListener('change', generarIntegrantes);
-        cantidadInput.addEventListener('change', function() {
-            if (tipoSelect?.value === 'grupal') generarIntegrantes();
+        cantidadInput.addEventListener('input', function() {
+            var r = rangoActual();
+            if (r) {
+                var v = parseInt(cantidadInput.value, 10);
+                if (!isNaN(v)) {
+                    if (v < r.min) v = r.min;
+                    if (v > r.max) v = r.max;
+                    cantidadInput.value = v;
+                }
+            }
+            generarPersonas();
         });
-        if (tipoSelect?.value === 'grupal') generarIntegrantes();
     }
 
-    var form = document.getElementById('preinscripcionForm');
     if (form && !form.hasAttribute('data-listener-added')) {
         form.setAttribute('data-listener-added', 'true');
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            var tipoInscripcion = document.getElementById('tipo_inscripcion_select')?.value;
-            var formData = new FormData(this);
-            if (tipoInscripcion === 'individual') {
-                var fac = document.querySelector('select[name="facultad_id_individual"]')?.value;
-                var car = document.querySelector('select[name="carrera_id_individual"]')?.value;
-                if (evento.tipo_evento === 'olimpiadas' && fac) formData.set('facultad_id', fac);
-                else if (evento.tipo_evento === 'intercarreras' && car) formData.set('carrera_id', car);
-                formData.delete('nombre_equipo');
-                formData.delete('cantidad_integrantes');
-                formData.delete('carrera_id');
-                formData.delete('integrantes');
+            var modalidad = tipoSelect.value;
+            if (!disciplinaSelect.value || !modalidad) {
+                Swal.fire({ icon: 'warning', title: 'Faltan datos', text: 'Seleccione disciplina y tipo de inscripcion.' });
+                return;
             }
+            var r = rangoActual();
+            var cantidad = parseInt(cantidadInput.value, 10) || 0;
+            if (r && (cantidad < r.min || cantidad > r.max)) {
+                Swal.fire({ icon: 'warning', title: 'Cantidad invalida', text: 'La cantidad debe estar entre ' + r.min + ' y ' + r.max + '.' });
+                return;
+            }
+            var formData = new FormData(form);
+            formData.set('tipo_inscripcion', modalidad);
+            if (modalidad === 'individual') formData.delete('nombre_equipo');
             Swal.fire({ title: 'Enviando...', allowOutsideClick: false, didOpen: function() { Swal.showLoading(); } });
             fetch('{{ route("preinscripcion.store") }}', {
                 method: 'POST',
                 headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
                 body: formData
             })
-            .then(function(r) { return r.json(); })
+            .then(function(resp) { return resp.json(); })
             .then(function(data) {
                 Swal.close();
                 if (data.success) {
@@ -1553,6 +1638,8 @@ function inicializarEventosFormulario(evento) {
             });
         });
     }
+
+    configurar();
 }
 
 function verificarEstadoInscripcion() {

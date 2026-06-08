@@ -40,7 +40,12 @@ class EventoConfiguracion extends Model
             'evento_configuracion_disciplinas',
             'evento_configuracion_id',
             'discipline_id'
-        )->withTimestamps();
+        )->withPivot([
+            'min_integrantes_grupal',
+            'max_integrantes_grupal',
+            'min_integrantes_individual',
+            'max_integrantes_individual',
+        ])->withTimestamps();
     }
 
     /**
@@ -76,6 +81,42 @@ class EventoConfiguracion extends Model
             ->where('status', 'active')
             ->orderBy('nombre')
             ->get();
+    }
+
+    /**
+     * Rango efectivo de integrantes [min, max, permite] para una disciplina y
+     * modalidad ('grupal'|'individual') en este evento.
+     *
+     * Prioridad: override del evento (pivot) -> rango oficial de la disciplina.
+     * Si la disciplina no define rango para la modalidad, se aplica un fallback
+     * retrocompatible (evento para grupal; 1 persona para individual).
+     */
+    public function rangoIntegrantes(Discipline $discipline, string $modalidad): array
+    {
+        $permite = $discipline->permiteModalidad($modalidad);
+
+        $min = $discipline->{"min_integrantes_{$modalidad}"};
+        $max = $discipline->{"max_integrantes_{$modalidad}"};
+
+        if ($discipline->pivot) {
+            $min = $discipline->pivot->{"min_integrantes_{$modalidad}"} ?? $min;
+            $max = $discipline->pivot->{"max_integrantes_{$modalidad}"} ?? $max;
+        }
+
+        if (! $discipline->tieneRango($modalidad)) {
+            if ($modalidad === 'grupal') {
+                $min = $this->min_integrantes_grupal ?? 2;
+                $max = $this->max_integrantes_grupal ?? 12;
+            } else {
+                $min = 1;
+                $max = 1;
+            }
+        } else {
+            $min = $min ?? 1;
+            $max = $max ?? max((int) $min, (int) ($this->max_integrantes_grupal ?? 30));
+        }
+
+        return ['min' => (int) $min, 'max' => (int) $max, 'permite' => $permite];
     }
 
     /**

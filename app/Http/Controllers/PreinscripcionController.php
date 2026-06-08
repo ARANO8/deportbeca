@@ -58,7 +58,16 @@ class PreinscripcionController extends Controller
         $facultades = Facultad::active()->get();
         $carreras = Carrera::active()->get();
 
-        return view('preinscripcion.modal_form', compact('evento', 'disciplinas', 'facultades', 'carreras'));
+        // Rango efectivo de integrantes por disciplina y modalidad (para el JS del modal)
+        $rangos = [];
+        foreach ($disciplinas as $d) {
+            $rangos[$d->id] = [
+                'grupal' => $evento->rangoIntegrantes($d, 'grupal'),
+                'individual' => $evento->rangoIntegrantes($d, 'individual'),
+            ];
+        }
+
+        return view('preinscripcion.modal_form', compact('evento', 'disciplinas', 'facultades', 'carreras', 'rangos'));
     }
 
     public function store(Request $request)
@@ -78,20 +87,53 @@ class PreinscripcionController extends Controller
             'documento_matricula_capitan' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
-        // Verificar limite de inscripciones
-        $eventoTemp = EventoConfiguracion::find(session('evento_activo_id'));
-        if ($eventoTemp && $eventoTemp->max_inscripciones !== null) {
-            $totalActual = Preinscripcion::where('tipo_evento', $eventoTemp->tipo_evento)
+        $evento = EventoConfiguracion::find(session('evento_activo_id'));
+
+        if (! $evento || ! $evento->estaVigente()) {
+            return response()->json(['success' => false, 'message' => 'Evento no disponible'], 400);
+        }
+
+        $tipoEvento = $evento->tipo_evento;
+        $tipoInscripcion = $request->tipo_inscripcion;
+
+        // La disciplina debe estar habilitada para el evento
+        $disciplina = $evento->disciplines()->where('disciplines.id', $request->disciplina_id)->first();
+        if (! $disciplina) {
+            return response()->json(['success' => false, 'message' => 'La disciplina no esta habilitada para este evento.'], 422);
+        }
+
+        // La modalidad elegida debe estar permitida por la disciplina
+        $rango = $evento->rangoIntegrantes($disciplina, $tipoInscripcion);
+        if (! $rango['permite']) {
+            return response()->json(['success' => false, 'message' => 'La disciplina '.$disciplina->nombre.' no admite la modalidad '.$tipoInscripcion.'.'], 422);
+        }
+
+        // La cantidad de participantes (principal + integrantes) debe caer en el rango
+        $integrantesInput = collect($request->integrantes ?? [])
+            ->filter(fn ($it) => is_array($it) && ! empty($it['nombre']))
+            ->values();
+        $personas = 1 + $integrantesInput->count();
+
+        if ($personas < $rango['min'] || $personas > $rango['max']) {
+            return response()->json([
+                'success' => false,
+                'message' => "Para {$disciplina->nombre} en modalidad {$tipoInscripcion} debe registrar entre {$rango['min']} y {$rango['max']} participantes (incluido el principal). Enviaste {$personas}.",
+            ], 422);
+        }
+
+        // Verificar limite de inscripciones del evento
+        if ($evento->max_inscripciones !== null) {
+            $totalActual = Preinscripcion::where('tipo_evento', $evento->tipo_evento)
                 ->whereIn('estado', [
                     Preinscripcion::ESTADO_PENDIENTE,
                     Preinscripcion::ESTADO_HABILITADO,
                 ])
                 ->count();
 
-            if ($totalActual >= $eventoTemp->max_inscripciones) {
+            if ($totalActual >= $evento->max_inscripciones) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'El evento ha alcanzado el limite maximo de inscripciones ('.$eventoTemp->max_inscripciones.').',
+                    'message' => 'El evento ha alcanzado el limite maximo de inscripciones ('.$evento->max_inscripciones.').',
                 ], 422);
             }
         }
@@ -99,14 +141,6 @@ class PreinscripcionController extends Controller
         DB::beginTransaction();
 
         try {
-            $evento = EventoConfiguracion::find(session('evento_activo_id'));
-
-            if (! $evento || ! $evento->estaVigente()) {
-                return response()->json(['success' => false, 'message' => 'Evento no disponible'], 400);
-            }
-
-            $tipoEvento = $evento->tipo_evento;
-            $tipoInscripcion = $request->tipo_inscripcion;
 
             // ========== SUBIR ARCHIVOS ==========
             // SEC-06: los documentos se guardan en disco 'local' (privado, fuera del webroot)
@@ -139,7 +173,7 @@ class PreinscripcionController extends Controller
                 'tipo_inscripcion' => $request->tipo_inscripcion,
                 'disciplina_id' => $request->disciplina_id,
                 'nombre_equipo' => $request->nombre_equipo ?? null,
-                'cantidad_integrantes' => $request->cantidad_integrantes ?? 1,
+                'cantidad_integrantes' => $personas,
                 'representante_nombre' => $request->representante_nombre,
                 'representante_ci' => $request->representante_ci,
                 'representante_email' => $request->representante_email,
@@ -148,20 +182,13 @@ class PreinscripcionController extends Controller
 
             $data = array_merge($data, $files);
 
-            // ========== ASIGNAR FACULTAD/CARRERA (CORREGIDO) ==========
-            if ($tipoInscripcion == 'grupal') {
-                if ($tipoEvento === 'olimpiadas') {
-                    $data['facultad_id'] = $request->facultad_id;
-                } elseif ($tipoEvento === 'intercarreras') {
-                    $data['carrera_id'] = $request->carrera_id;
-                }
-            } else {
-                // INDIVIDUAL - CORREGIDO: usar campos con _individual
-                if ($tipoEvento === 'olimpiadas') {
-                    $data['facultad_id'] = $request->facultad_id_individual;
-                } elseif ($tipoEvento === 'intercarreras') {
-                    $data['carrera_id'] = $request->carrera_id_individual;
-                }
+            // ========== ASIGNAR FACULTAD / CARRERA ==========
+            // La inscripcion pertenece a una sola facultad (olimpiadas) o carrera
+            // (intercarreras), sin importar la modalidad.
+            if ($tipoEvento === 'olimpiadas') {
+                $data['facultad_id'] = $request->facultad_id;
+            } elseif ($tipoEvento === 'intercarreras') {
+                $data['carrera_id'] = $request->carrera_id;
             }
 
             // ========== CREAR PREINSCRIPCIÓN ==========
@@ -178,33 +205,29 @@ class PreinscripcionController extends Controller
                 'documento_matricula_path' => $files['documento_matricula_path'] ?? null,
             ]);
 
-            // ========== GUARDAR INTEGRANTES ADICIONALES (SOLO GRUPAL) ==========
-            if ($tipoInscripcion == 'grupal' && $request->has('integrantes')) {
-                foreach ($request->integrantes as $integrante) {
-                    if (! empty($integrante['nombre'])) {
-                        $integranteFiles = [];
+            // ========== GUARDAR PARTICIPANTES ADICIONALES (AMBAS MODALIDADES) ==========
+            foreach ($integrantesInput as $integrante) {
+                $integranteFiles = [];
 
-                        if (isset($integrante['documento_ci']) && $integrante['documento_ci'] instanceof UploadedFile) {
-                            $integranteFiles['documento_ci_path'] = $integrante['documento_ci']->store('preinscripciones/integrantes', 'local');
-                        }
-                        if (isset($integrante['documento_seguro']) && $integrante['documento_seguro'] instanceof UploadedFile) {
-                            $integranteFiles['documento_seguro_path'] = $integrante['documento_seguro']->store('preinscripciones/integrantes', 'local');
-                        }
-                        if (isset($integrante['documento_matricula']) && $integrante['documento_matricula'] instanceof UploadedFile) {
-                            $integranteFiles['documento_matricula_path'] = $integrante['documento_matricula']->store('preinscripciones/integrantes', 'local');
-                        }
-
-                        PreinscripcionIntegrante::create([
-                            'preinscripcion_id' => $preinscripcion->id,
-                            'nombre' => $integrante['nombre'],
-                            'ci' => $integrante['ci'],
-                            'es_capitan' => false,
-                            'documento_ci_path' => $integranteFiles['documento_ci_path'] ?? null,
-                            'documento_seguro_path' => $integranteFiles['documento_seguro_path'] ?? null,
-                            'documento_matricula_path' => $integranteFiles['documento_matricula_path'] ?? null,
-                        ]);
-                    }
+                if (isset($integrante['documento_ci']) && $integrante['documento_ci'] instanceof UploadedFile) {
+                    $integranteFiles['documento_ci_path'] = $integrante['documento_ci']->store('preinscripciones/integrantes', 'local');
                 }
+                if (isset($integrante['documento_seguro']) && $integrante['documento_seguro'] instanceof UploadedFile) {
+                    $integranteFiles['documento_seguro_path'] = $integrante['documento_seguro']->store('preinscripciones/integrantes', 'local');
+                }
+                if (isset($integrante['documento_matricula']) && $integrante['documento_matricula'] instanceof UploadedFile) {
+                    $integranteFiles['documento_matricula_path'] = $integrante['documento_matricula']->store('preinscripciones/integrantes', 'local');
+                }
+
+                PreinscripcionIntegrante::create([
+                    'preinscripcion_id' => $preinscripcion->id,
+                    'nombre' => $integrante['nombre'],
+                    'ci' => $integrante['ci'] ?? null,
+                    'es_capitan' => false,
+                    'documento_ci_path' => $integranteFiles['documento_ci_path'] ?? null,
+                    'documento_seguro_path' => $integranteFiles['documento_seguro_path'] ?? null,
+                    'documento_matricula_path' => $integranteFiles['documento_matricula_path'] ?? null,
+                ]);
             }
 
             DB::commit();
