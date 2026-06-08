@@ -6,25 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
+<<<<<<< Updated upstream
         if (! Schema::hasColumn('disciplines', 'ubicacion_mapa')) {
             Schema::table('disciplines', function (Blueprint $table) {
                 $table->text('ubicacion_mapa')->nullable()->after('descripcion');
+=======
+        if (!Schema::hasColumn('lugares', 'ubicacion_mapa')) {
+            Schema::table('lugares', function (Blueprint $table) {
+                $table->text('ubicacion_mapa')->nullable()->after('direccion');
+>>>>>>> Stashed changes
             });
         }
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        if (Schema::hasColumn('disciplines', 'ubicacion_mapa')) {
-            Schema::table('disciplines', function (Blueprint $table) {
+        if (Schema::hasColumn('lugares', 'ubicacion_mapa')) {
+            Schema::table('lugares', function (Blueprint $table) {
                 $table->dropColumn('ubicacion_mapa');
             });
         }

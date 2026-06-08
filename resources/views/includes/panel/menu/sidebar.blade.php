@@ -21,10 +21,17 @@
 </li>
 @endpuede
 
+<<<<<<< Updated upstream:resources/views/includes/panel/menu/sidebar.blade.php
 @puede('disciplinas','ver')
 <li class="nav-item {{ $r->routeIs('disciplinas.*') ? 'active' : '' }}">
     <a class="nav-link {{ $r->routeIs('disciplinas.*') ? 'active' : '' }}" href="{{ route('disciplinas.index') }}">
         <i class="fas fa-futbol"></i><strong>Disciplinas</strong>
+=======
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('disciplinas.index') }}">
+        <i class="fas fa-futbol"></i>
+        <span>Disciplinas</span>
+>>>>>>> Stashed changes:resources/views/includes/panel/menu/admin.blade.php
     </a>
 </li>
 @endpuede
