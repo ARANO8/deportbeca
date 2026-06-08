@@ -15,6 +15,11 @@
 
 @if($lat !== null && $lng !== null)
 <div id="{{ $id }}" style="height: 300px; border-radius: 10px; border: 1px solid #d8dee6; z-index: 0;"></div>
+<div class="mt-2 text-right">
+    <a href="https://www.google.com/maps/search/?api=1&query={{ $lat }},{{ $lng }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-danger">
+        <i class="fas fa-map-marker-alt"></i> Abrir con Google Maps
+    </a>
+</div>
 <script>
 (function () {
     function initDisplay() {
