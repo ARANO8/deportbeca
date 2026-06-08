@@ -179,10 +179,49 @@
                     </small>
                 </div>
                 
+                @if($disciplinasConRango->count() > 0)
+                <div class="form-group mb-4">
+                    <label class="fs-5 fw-bold"><i class="fas fa-users text-info"></i> Cupo de integrantes por disciplina (este evento)</label>
+                    <small class="d-block text-muted mb-2">
+                        Opcional. Ajusta cuantos participantes admite cada disciplina en ESTE evento, dentro de su rango oficial.
+                        Si lo dejas vacio se usa el rango oficial de la disciplina. Solo aplica a las disciplinas seleccionadas arriba.
+                    </small>
+                    <div class="border rounded p-3">
+                        @foreach($disciplinasConRango as $dc)
+                            @php $cur = $cuposActuales[$dc->id] ?? []; @endphp
+                            <div class="cupo-row mb-3" data-cupo-for="{{ $dc->id }}" style="display:none;">
+                                <strong>{{ $dc->nombre }}</strong> <span class="badge bg-secondary">{{ $dc->codigo }}</span>
+                                <div class="row mt-1">
+                                    @if($dc->tieneRango('grupal'))
+                                    <div class="col-md-6 mb-2">
+                                        <small class="text-muted d-block">Grupal — oficial {{ $dc->min_integrantes_grupal ?? 1 }} a {{ $dc->max_integrantes_grupal ?? 'sin tope' }}</small>
+                                        <div class="d-flex gap-2">
+                                            <input type="number" min="1" max="99" class="form-control form-control-sm" name="cupos[{{ $dc->id }}][min_grupal]" placeholder="min" value="{{ $cur['min_grupal'] ?? '' }}">
+                                            <input type="number" min="1" max="99" class="form-control form-control-sm" name="cupos[{{ $dc->id }}][max_grupal]" placeholder="max" value="{{ $cur['max_grupal'] ?? '' }}">
+                                        </div>
+                                    </div>
+                                    @endif
+                                    @if($dc->tieneRango('individual'))
+                                    <div class="col-md-6 mb-2">
+                                        <small class="text-muted d-block">Individual — oficial {{ $dc->min_integrantes_individual ?? 1 }} a {{ $dc->max_integrantes_individual ?? 'sin tope' }}</small>
+                                        <div class="d-flex gap-2">
+                                            <input type="number" min="1" max="99" class="form-control form-control-sm" name="cupos[{{ $dc->id }}][min_individual]" placeholder="min" value="{{ $cur['min_individual'] ?? '' }}">
+                                            <input type="number" min="1" max="99" class="form-control form-control-sm" name="cupos[{{ $dc->id }}][max_individual]" placeholder="max" value="{{ $cur['max_individual'] ?? '' }}">
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                        <p class="text-muted mb-0 small" id="cupoVacioMsg">Selecciona arriba una disciplina con rango oficial (ej. Voleibol, Taekwondo) para ajustar su cupo en este evento.</p>
+                    </div>
+                </div>
+                @endif
+
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label>Mínimo Integrantes (Grupal)</label>
+                            <label>Mínimo Integrantes (Grupal, por defecto)</label>
                             <input type="number" name="min_integrantes_grupal" class="form-control" value="{{ $configuracion->min_integrantes_grupal ?? 4 }}" min="1" max="20">
                         </div>
                     </div>
@@ -231,15 +270,30 @@ function copiarCodigo(codigo) {
     });
 }
 
+function syncCupoRows() {
+    let algunaVisible = false;
+    document.querySelectorAll('.cupo-row').forEach(function(row) {
+        const id = row.dataset.cupoFor;
+        const cb = document.querySelector('input[name="disciplinas_ids[]"][value="' + id + '"]');
+        const visible = !!(cb && cb.checked);
+        row.style.display = visible ? 'block' : 'none';
+        if (visible) algunaVisible = true;
+    });
+    const msg = document.getElementById('cupoVacioMsg');
+    if (msg) msg.style.display = algunaVisible ? 'none' : 'block';
+}
+
 function updateStats() {
     const allChecked = document.querySelectorAll('input[name="disciplinas_ids[]"]:checked');
     const total = allChecked.length;
-    
+
     // Contar subdisciplinas
     const subDisciplines = document.querySelectorAll('.sub-checkbox:checked');
-    
+
     document.getElementById('totalSelectedStats').textContent = total;
     document.getElementById('totalSubSelectedStats').textContent = subDisciplines.length;
+
+    syncCupoRows();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
